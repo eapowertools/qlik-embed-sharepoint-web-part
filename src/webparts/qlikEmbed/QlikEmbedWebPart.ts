@@ -1,29 +1,41 @@
-import { Version } from '@microsoft/sp-core-library';
+import { Version } from "@microsoft/sp-core-library";
 import {
-  type IPropertyPaneConfiguration,
-  PropertyPaneTextField
-} from '@microsoft/sp-property-pane';
-import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
-import type { IReadonlyTheme } from '@microsoft/sp-component-base';
-import { escape } from '@microsoft/sp-lodash-subset';
+	type IPropertyPaneConfiguration,
+	PropertyPaneTextField,
+} from "@microsoft/sp-property-pane";
+import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
+import type { IReadonlyTheme } from "@microsoft/sp-component-base";
+import { escape } from "@microsoft/sp-lodash-subset";
 
-import styles from './QlikEmbedWebPart.module.scss';
-import * as strings from 'QlikEmbedWebPartStrings';
+import styles from "./QlikEmbedWebPart.module.scss";
+import * as strings from "QlikEmbedWebPartStrings";
 
 export interface IQlikEmbedWebPartProps {
-  description: string;
+	description: string;
 }
 
 export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWebPartProps> {
+	private _isDarkTheme: boolean = false;
+	private _environmentMessage: string = "";
 
-  private _isDarkTheme: boolean = false;
-  private _environmentMessage: string = '';
-
-  public render(): void {
-    this.domElement.innerHTML = `
-    <section class="${styles.qlikEmbed} ${!!this.context.sdks.microsoftTeams ? styles.teams : ''}">
+	public render(): void {
+		this.domElement.innerHTML = `
+    <script
+        crossorigin="anonymous"
+        type="application/javascript"
+        src="https://cdn.jsdelivr.net/npm/@qlik/embed-web-components@1/dist/index.min.js"
+        data-host="ea-hybrid-qcs-internal.us.qlikcloud.com"
+        data-client-id="a97df0602ad264d00d362686774c7daf"
+        data-redirect-uri="https://8nc4hs-admin.sharepoint.com/"
+        data-access-token-storage="session"
+    ></script>
+    <section class="${styles.qlikEmbed} ${!!this.context.sdks.microsoftTeams ? styles.teams : ""}">
       <div class="${styles.welcome}">
-        <img alt="" src="${this._isDarkTheme ? require('./assets/welcome-dark.png') : require('./assets/welcome-light.png')}" class="${styles.welcomeImage}" />
+        <img alt="" src="${
+					this._isDarkTheme
+						? require("./assets/welcome-dark.png")
+						: require("./assets/welcome-light.png")
+				}" class="${styles.welcomeImage}" />
         <h2>Well done, ${escape(this.context.pageContext.user.displayName)}!</h2>
         <div>${this._environmentMessage}</div>
         <div>Web part property value: <strong>${escape(this.properties.description)}</strong></div>
@@ -44,85 +56,97 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
             <li><a href="https://aka.ms/m365pnp" target="_blank">Microsoft 365 Developer Community</a></li>
           </ul>
       </div>
+      <div id="qlik-chart">
+<qlik-embed
+        ui="analytics/chart"
+        app-id="22cc5384-95b1-4348-b01b-61ddae806055"
+        object-id="5cc11e04-f7ab-49ea-95ce-7fb753ff3c8f"
+      ></qlik-embed>
+      </div>
     </section>`;
-  }
+	}
 
-  protected onInit(): Promise<void> {
-    return this._getEnvironmentMessage().then(message => {
-      this._environmentMessage = message;
-    });
-  }
+	protected onInit(): Promise<void> {
+		return this._getEnvironmentMessage().then((message) => {
+			this._environmentMessage = message;
+		});
+	}
 
+	private _getEnvironmentMessage(): Promise<string> {
+		if (!!this.context.sdks.microsoftTeams) {
+			// running in Teams, office.com or Outlook
+			return this.context.sdks.microsoftTeams.teamsJs.app.getContext().then((context) => {
+				let environmentMessage: string = "";
+				switch (context.app.host.name) {
+					case "Office": // running in Office
+						environmentMessage = this.context.isServedFromLocalhost
+							? strings.AppLocalEnvironmentOffice
+							: strings.AppOfficeEnvironment;
+						break;
+					case "Outlook": // running in Outlook
+						environmentMessage = this.context.isServedFromLocalhost
+							? strings.AppLocalEnvironmentOutlook
+							: strings.AppOutlookEnvironment;
+						break;
+					case "Teams": // running in Teams
+					case "TeamsModern":
+						environmentMessage = this.context.isServedFromLocalhost
+							? strings.AppLocalEnvironmentTeams
+							: strings.AppTeamsTabEnvironment;
+						break;
+					default:
+						environmentMessage = strings.UnknownEnvironment;
+				}
 
+				return environmentMessage;
+			});
+		}
 
-  private _getEnvironmentMessage(): Promise<string> {
-    if (!!this.context.sdks.microsoftTeams) { // running in Teams, office.com or Outlook
-      return this.context.sdks.microsoftTeams.teamsJs.app.getContext()
-        .then(context => {
-          let environmentMessage: string = '';
-          switch (context.app.host.name) {
-            case 'Office': // running in Office
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentOffice : strings.AppOfficeEnvironment;
-              break;
-            case 'Outlook': // running in Outlook
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentOutlook : strings.AppOutlookEnvironment;
-              break;
-            case 'Teams': // running in Teams
-            case 'TeamsModern':
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentTeams : strings.AppTeamsTabEnvironment;
-              break;
-            default:
-              environmentMessage = strings.UnknownEnvironment;
-          }
+		return Promise.resolve(
+			this.context.isServedFromLocalhost
+				? strings.AppLocalEnvironmentSharePoint
+				: strings.AppSharePointEnvironment
+		);
+	}
 
-          return environmentMessage;
-        });
-    }
+	protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {
+		if (!currentTheme) {
+			return;
+		}
 
-    return Promise.resolve(this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentSharePoint : strings.AppSharePointEnvironment);
-  }
+		this._isDarkTheme = !!currentTheme.isInverted;
+		const { semanticColors } = currentTheme;
 
-  protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {
-    if (!currentTheme) {
-      return;
-    }
+		if (semanticColors) {
+			this.domElement.style.setProperty("--bodyText", semanticColors.bodyText || null);
+			this.domElement.style.setProperty("--link", semanticColors.link || null);
+			this.domElement.style.setProperty("--linkHovered", semanticColors.linkHovered || null);
+		}
+	}
 
-    this._isDarkTheme = !!currentTheme.isInverted;
-    const {
-      semanticColors
-    } = currentTheme;
+	protected get dataVersion(): Version {
+		return Version.parse("1.0");
+	}
 
-    if (semanticColors) {
-      this.domElement.style.setProperty('--bodyText', semanticColors.bodyText || null);
-      this.domElement.style.setProperty('--link', semanticColors.link || null);
-      this.domElement.style.setProperty('--linkHovered', semanticColors.linkHovered || null);
-    }
-
-  }
-
-  protected get dataVersion(): Version {
-    return Version.parse('1.0');
-  }
-
-  protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
-    return {
-      pages: [
-        {
-          header: {
-            description: strings.PropertyPaneDescription
-          },
-          groups: [
-            {
-              groupName: strings.BasicGroupName,
-              groupFields: [
-                PropertyPaneTextField('description', {
-                  label: strings.DescriptionFieldLabel
-                })
-              ]
-            }
-          ]
-        }
-      ]
-    };
-  }
+	protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
+		return {
+			pages: [
+				{
+					header: {
+						description: strings.PropertyPaneDescription,
+					},
+					groups: [
+						{
+							groupName: strings.BasicGroupName,
+							groupFields: [
+								PropertyPaneTextField("description", {
+									label: strings.DescriptionFieldLabel,
+								}),
+							],
+						},
+					],
+				},
+			],
+		};
+	}
 }
