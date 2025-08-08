@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "qlik-embed-web-part-client-side-solution",
+    "id": "2f119b69-be73-4099-bc62-909911d7846b",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.21.1"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "qlik-embed-web-part description"
+      },
+      "longDescription": {
+        "default": "qlik-embed-web-part description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "qlik-embed-web-part Feature",
+        "description": "The feature that activates elements of the qlik-embed-web-part solution.",
+        "id": "31c4de0c-35b2-4fcd-b905-a44410aa8d56",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/qlik-embed-web-part.sppkg"
+  }
+}

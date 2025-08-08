@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "qlik-embed-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/qlikEmbed/QlikEmbedWebPart.js",
+          "manifest": "./src/webparts/qlikEmbed/QlikEmbedWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "QlikEmbedWebPartStrings": "lib/webparts/qlikEmbed/loc/{locale}.js"
+  }
+}

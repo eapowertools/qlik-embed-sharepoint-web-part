@@ -1,0 +1,18 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.18.0",
+    "sdksVersions": {},
+    "version": "1.21.1",
+    "libraryName": "qlik-embed-web-part",
+    "libraryId": "2f119b69-be73-4099-bc62-909911d7846b",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "qlik-embed-web-part",
+    "solutionShortDescription": "qlik-embed-web-part description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
