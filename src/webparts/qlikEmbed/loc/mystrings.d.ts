@@ -1,19 +1,19 @@
 declare interface IQlikEmbedWebPartStrings {
-  PropertyPaneDescription: string;
-  BasicGroupName: string;
-  DescriptionFieldLabel: string;
-  AppLocalEnvironmentSharePoint: string;
-  AppLocalEnvironmentTeams: string;
-  AppLocalEnvironmentOffice: string;
-  AppLocalEnvironmentOutlook: string;
-  AppSharePointEnvironment: string;
-  AppTeamsTabEnvironment: string;
-  AppOfficeEnvironment: string;
-  AppOutlookEnvironment: string;
-  UnknownEnvironment: string;
+	PropertyPaneDescription: string;
+	BasicGroupName: string;
+	tenantURLFieldLabel: string;
+	AppLocalEnvironmentSharePoint: string;
+	AppLocalEnvironmentTeams: string;
+	AppLocalEnvironmentOffice: string;
+	AppLocalEnvironmentOutlook: string;
+	AppSharePointEnvironment: string;
+	AppTeamsTabEnvironment: string;
+	AppOfficeEnvironment: string;
+	AppOutlookEnvironment: string;
+	UnknownEnvironment: string;
 }
 
-declare module 'QlikEmbedWebPartStrings' {
-  const strings: IQlikEmbedWebPartStrings;
-  export = strings;
+declare module "QlikEmbedWebPartStrings" {
+	const strings: IQlikEmbedWebPartStrings;
+	export = strings;
 }

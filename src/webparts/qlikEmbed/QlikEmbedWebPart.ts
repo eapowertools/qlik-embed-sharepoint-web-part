@@ -1,128 +1,163 @@
-import { Version } from '@microsoft/sp-core-library';
+import { Version } from "@microsoft/sp-core-library";
 import {
-  type IPropertyPaneConfiguration,
-  PropertyPaneTextField
-} from '@microsoft/sp-property-pane';
-import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
-import type { IReadonlyTheme } from '@microsoft/sp-component-base';
-import { escape } from '@microsoft/sp-lodash-subset';
+	type IPropertyPaneConfiguration,
+	PropertyPaneTextField,
+} from "@microsoft/sp-property-pane";
+import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
+import type { IReadonlyTheme } from "@microsoft/sp-component-base";
+import { escape } from "@microsoft/sp-lodash-subset";
 
-import styles from './QlikEmbedWebPart.module.scss';
-import * as strings from 'QlikEmbedWebPartStrings';
+import styles from "./QlikEmbedWebPart.module.scss";
+import * as strings from "QlikEmbedWebPartStrings";
 
 export interface IQlikEmbedWebPartProps {
-  description: string;
+	tenantURL: string;
+	clientID: string;
 }
 
 export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWebPartProps> {
+	private _isDarkTheme: boolean = false;
+	private _environmentMessage: string = "";
+	private _sectionTagClassName: string = `${styles.helloWorld}${
+		!!this.context.sdks.microsoftTeams ? styles.teams : ""
+	}`;
 
-  private _isDarkTheme: boolean = false;
-  private _environmentMessage: string = '';
+	public render(): void {
+		// access current DOM by using 'this.domElement'
+		const sectionToRemove = document.getElementById(this._sectionTagClassName);
+		if (sectionToRemove != null) {
+			sectionToRemove.remove();
+		}
 
-  public render(): void {
-    this.domElement.innerHTML = `
-    <section class="${styles.qlikEmbed} ${!!this.context.sdks.microsoftTeams ? styles.teams : ''}">
-      <div class="${styles.welcome}">
-        <img alt="" src="${this._isDarkTheme ? require('./assets/welcome-dark.png') : require('./assets/welcome-light.png')}" class="${styles.welcomeImage}" />
+		var sectionTag = document.createElement("section");
+		sectionTag.classList.add(this._sectionTagClassName);
+		sectionTag.id = this._sectionTagClassName;
+
+		var sectionHeaderDiv = document.createElement("div");
+		sectionHeaderDiv.classList.add(`${styles.welcome}`);
+		sectionHeaderDiv.innerHTML = `
+    <img alt="" src="${
+			this._isDarkTheme
+				? require("./assets/welcome-dark.png")
+				: require("./assets/welcome-light.png")
+		}" class="${styles.welcomeImage}" />
         <h2>Well done, ${escape(this.context.pageContext.user.displayName)}!</h2>
         <div>${this._environmentMessage}</div>
-        <div>Web part property value: <strong>${escape(this.properties.description)}</strong></div>
-      </div>
-      <div>
-        <h3>Welcome to SharePoint Framework!</h3>
-        <p>
-        The SharePoint Framework (SPFx) is a extensibility model for Microsoft Viva, Microsoft Teams and SharePoint. It's the easiest way to extend Microsoft 365 with automatic Single Sign On, automatic hosting and industry standard tooling.
-        </p>
-        <h4>Learn more about SPFx development:</h4>
-          <ul class="${styles.links}">
-            <li><a href="https://aka.ms/spfx" target="_blank">SharePoint Framework Overview</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-graph" target="_blank">Use Microsoft Graph in your solution</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-teams" target="_blank">Build for Microsoft Teams using SharePoint Framework</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-viva" target="_blank">Build for Microsoft Viva Connections using SharePoint Framework</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-store" target="_blank">Publish SharePoint Framework applications to the marketplace</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-api" target="_blank">SharePoint Framework API reference</a></li>
-            <li><a href="https://aka.ms/m365pnp" target="_blank">Microsoft 365 Developer Community</a></li>
-          </ul>
-      </div>
-    </section>`;
-  }
+        <div>Web part property value: <strong>${escape(this.properties.tenantURL)}</strong></div>
+        `;
 
-  protected onInit(): Promise<void> {
-    return this._getEnvironmentMessage().then(message => {
-      this._environmentMessage = message;
-    });
-  }
+		var scriptTag = document.createElement("script");
+		scriptTag.setAttribute("crossorigin", "anonymous");
+		scriptTag.setAttribute("type", "application/javascript");
+		scriptTag.setAttribute(
+			"src",
+			"https://cdn.jsdelivr.net/npm/@qlik/embed-web-components@1/dist/index.min.js"
+		);
+		scriptTag.setAttribute("data-host", `${this.properties.tenantURL}`);
+		scriptTag.setAttribute("data-client-id", "a97df0602ad264d00d362686774c7daf");
+		scriptTag.setAttribute(
+			"data-redirect-uri",
+			"https://8nc4hs-admin.sharepoint.com/_layouts/15/workbench.aspx"
+		);
+		scriptTag.setAttribute("data-auto-redirect", "true");
+		scriptTag.setAttribute("data-access-token-storage", "session");
 
+		var embedDiv = document.createElement("div");
+		embedDiv.classList.add(`${styles["qlik-chart"]}`);
+		var embedTag = document.createElement("qlik-embed");
+		embedTag.classList.add(`${styles["qlik-chart"]}`);
+		embedTag.setAttribute("ui", "analytics/chart");
+		embedTag.setAttribute("app-id", "6a27b98d-2f86-4fec-81e6-7caa7bc4e644");
+		embedTag.setAttribute("object-id", "PFCgpZ");
+		embedDiv.appendChild(embedTag);
 
+		sectionTag.appendChild(sectionHeaderDiv);
+		sectionTag.appendChild(scriptTag);
+		sectionTag.appendChild(embedDiv);
+		this.domElement.appendChild(sectionTag);
+	}
 
-  private _getEnvironmentMessage(): Promise<string> {
-    if (!!this.context.sdks.microsoftTeams) { // running in Teams, office.com or Outlook
-      return this.context.sdks.microsoftTeams.teamsJs.app.getContext()
-        .then(context => {
-          let environmentMessage: string = '';
-          switch (context.app.host.name) {
-            case 'Office': // running in Office
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentOffice : strings.AppOfficeEnvironment;
-              break;
-            case 'Outlook': // running in Outlook
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentOutlook : strings.AppOutlookEnvironment;
-              break;
-            case 'Teams': // running in Teams
-            case 'TeamsModern':
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentTeams : strings.AppTeamsTabEnvironment;
-              break;
-            default:
-              environmentMessage = strings.UnknownEnvironment;
-          }
+	protected onInit(): Promise<void> {
+		return this._getEnvironmentMessage().then((message) => {
+			this._environmentMessage = message;
+		});
+	}
 
-          return environmentMessage;
-        });
-    }
+	private _getEnvironmentMessage(): Promise<string> {
+		if (!!this.context.sdks.microsoftTeams) {
+			// running in Teams, office.com or Outlook
+			return this.context.sdks.microsoftTeams.teamsJs.app.getContext().then((context) => {
+				let environmentMessage: string = "";
+				switch (context.app.host.name) {
+					case "Office": // running in Office
+						environmentMessage = this.context.isServedFromLocalhost
+							? strings.AppLocalEnvironmentOffice
+							: strings.AppOfficeEnvironment;
+						break;
+					case "Outlook": // running in Outlook
+						environmentMessage = this.context.isServedFromLocalhost
+							? strings.AppLocalEnvironmentOutlook
+							: strings.AppOutlookEnvironment;
+						break;
+					case "Teams": // running in Teams
+					case "TeamsModern":
+						environmentMessage = this.context.isServedFromLocalhost
+							? strings.AppLocalEnvironmentTeams
+							: strings.AppTeamsTabEnvironment;
+						break;
+					default:
+						environmentMessage = strings.UnknownEnvironment;
+				}
 
-    return Promise.resolve(this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentSharePoint : strings.AppSharePointEnvironment);
-  }
+				return environmentMessage;
+			});
+		}
 
-  protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {
-    if (!currentTheme) {
-      return;
-    }
+		return Promise.resolve(
+			this.context.isServedFromLocalhost
+				? strings.AppLocalEnvironmentSharePoint
+				: strings.AppSharePointEnvironment
+		);
+	}
 
-    this._isDarkTheme = !!currentTheme.isInverted;
-    const {
-      semanticColors
-    } = currentTheme;
+	protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {
+		if (!currentTheme) {
+			return;
+		}
 
-    if (semanticColors) {
-      this.domElement.style.setProperty('--bodyText', semanticColors.bodyText || null);
-      this.domElement.style.setProperty('--link', semanticColors.link || null);
-      this.domElement.style.setProperty('--linkHovered', semanticColors.linkHovered || null);
-    }
+		this._isDarkTheme = !!currentTheme.isInverted;
+		const { semanticColors } = currentTheme;
 
-  }
+		if (semanticColors) {
+			this.domElement.style.setProperty("--bodyText", semanticColors.bodyText || null);
+			this.domElement.style.setProperty("--link", semanticColors.link || null);
+			this.domElement.style.setProperty("--linkHovered", semanticColors.linkHovered || null);
+		}
+	}
 
-  protected get dataVersion(): Version {
-    return Version.parse('1.0');
-  }
+	protected get dataVersion(): Version {
+		return Version.parse("1.0");
+	}
 
-  protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
-    return {
-      pages: [
-        {
-          header: {
-            description: strings.PropertyPaneDescription
-          },
-          groups: [
-            {
-              groupName: strings.BasicGroupName,
-              groupFields: [
-                PropertyPaneTextField('description', {
-                  label: strings.DescriptionFieldLabel
-                })
-              ]
-            }
-          ]
-        }
-      ]
-    };
-  }
+	protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
+		return {
+			pages: [
+				{
+					header: {
+						description: strings.PropertyPaneDescription,
+					},
+					groups: [
+						{
+							groupName: strings.BasicGroupName,
+							groupFields: [
+								PropertyPaneTextField("tenantURL", {
+									label: strings.tenantURLFieldLabel,
+								}),
+							],
+						},
+					],
+				},
+			],
+		};
+	}
 }
