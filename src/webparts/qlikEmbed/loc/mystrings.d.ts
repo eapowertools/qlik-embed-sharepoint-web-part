@@ -1,7 +1,11 @@
 declare interface IQlikEmbedWebPartStrings {
 	PropertyPaneDescription: string;
-	BasicGroupName: string;
+	TenantConfigGroupName: string;
+	ObjectConfigGroupName: string;
 	tenantURLFieldLabel: string;
+	clientIDFieldLabel: string;
+	appIDFieldLabel: string;
+	objectIDFieldLabel: string;
 	AppLocalEnvironmentSharePoint: string;
 	AppLocalEnvironmentTeams: string;
 	AppLocalEnvironmentOffice: string;

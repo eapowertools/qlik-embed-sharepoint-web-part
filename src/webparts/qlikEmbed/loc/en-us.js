@@ -1,8 +1,12 @@
 define([], function () {
 	return {
 		PropertyPaneDescription: "Description",
-		BasicGroupName: "Group Name",
+		TenantConfigGroupName: "Tenant Configuration",
+		ObjectConfigGroupName: "Chart Configuration",
 		tenantURLFieldLabel: "Tenant URL Field",
+		clientIDFieldLabel: "Client ID",
+		appIDFieldLabel: "App ID",
+		objectIDFieldLabel: "Object ID",
 		AppLocalEnvironmentSharePoint:
 			"The app is running on your local environment as SharePoint web part",
 		AppLocalEnvironmentTeams: "The app is running on your local environment as Microsoft Teams app",

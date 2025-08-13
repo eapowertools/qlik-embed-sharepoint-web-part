@@ -13,6 +13,8 @@ import * as strings from "QlikEmbedWebPartStrings";
 export interface IQlikEmbedWebPartProps {
 	tenantURL: string;
 	clientID: string;
+	appID: string;
+	objectID: string;
 }
 
 export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWebPartProps> {
@@ -22,6 +24,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 	
 
 	public render(): void {
+		console.log("My URL: " + document.URL);
 		var hasValidConfig = false;
 		if (this._sectionTagValue == "")
 		{
@@ -50,7 +53,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
         <div>Web part property value: <strong>${escape(this.properties.tenantURL)}</strong></div>
         `;
 
-		if(this.properties.tenantURL == "https://ea-hybrid-qcs-internal.us.qlikcloud.com")
+		if(this.properties.tenantURL == "https://ea-hybrid-qcs-internal.us.qlikcloud.com" && this.properties.clientID != "")
 		{
 			hasValidConfig = true;
 		}
@@ -66,10 +69,10 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				"https://cdn.jsdelivr.net/npm/@qlik/embed-web-components@1/dist/index.min.js"
 			);
 			scriptTag.setAttribute("data-host", `${this.properties.tenantURL}`);
-			scriptTag.setAttribute("data-client-id", "a97df0602ad264d00d362686774c7daf");
+			scriptTag.setAttribute("data-client-id", `${this.properties.clientID}`);
 			scriptTag.setAttribute(
 				"data-redirect-uri",
-				"https://8nc4hs-admin.sharepoint.com/_layouts/15/workbench.aspx"
+				`${document.URL}`
 			);
 			scriptTag.setAttribute("data-auto-redirect", "true");
 			scriptTag.setAttribute("data-access-token-storage", "session");
@@ -79,8 +82,8 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			var embedTag = document.createElement("qlik-embed");
 			embedTag.classList.add(`${styles["qlik-chart"]}`);
 			embedTag.setAttribute("ui", "analytics/chart");
-			embedTag.setAttribute("app-id", "6a27b98d-2f86-4fec-81e6-7caa7bc4e644");
-			embedTag.setAttribute("object-id", "PFCgpZ");
+			embedTag.setAttribute("app-id", `${this.properties.appID}`);
+			embedTag.setAttribute("object-id", `${this.properties.objectID}`);
 			embedDiv.appendChild(embedTag);
 
 			sectionTag.appendChild(scriptTag);
@@ -161,13 +164,27 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 					},
 					groups: [
 						{
-							groupName: strings.BasicGroupName,
+							groupName: strings.TenantConfigGroupName,
 							groupFields: [
 								PropertyPaneTextField("tenantURL", {
 									label: strings.tenantURLFieldLabel,
 								}),
+								PropertyPaneTextField("clientID", {
+									label: strings.clientIDFieldLabel,
+								})
 							],
 						},
+						{
+							groupName: strings.ObjectConfigGroupName,
+							groupFields: [
+								PropertyPaneTextField("appID", {
+									label: strings.appIDFieldLabel,
+								}),
+								PropertyPaneTextField("objectID", {
+									label: strings.objectIDFieldLabel,
+								})
+							],
+						}
 					],
 				},
 			],
