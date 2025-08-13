@@ -18,25 +18,29 @@ export interface IQlikEmbedWebPartProps {
 export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWebPartProps> {
 	private _isDarkTheme: boolean = false;
 	private _environmentMessage: string = "";
-	private _sectionTagClassName: string = `${styles.helloWorld}${
-		!!this.context.sdks.microsoftTeams ? styles.teams : ""
-	}`;
+	private _sectionTagValue: string = "";
+	
 
 	public render(): void {
+		var hasValidConfig = false;
+		if (this._sectionTagValue == "")
+		{
+			this._sectionTagValue = `${styles.qlikEmbed}${
+				!!this.context.sdks.microsoftTeams ? styles.teams : ""
+			}`;
+		}
 		// access current DOM by using 'this.domElement'
-		const sectionToRemove = document.getElementById(this._sectionTagClassName);
+		const sectionToRemove = document.getElementById(this._sectionTagValue);
 		if (sectionToRemove != null) {
 			sectionToRemove.remove();
 		}
-
 		var sectionTag = document.createElement("section");
-		sectionTag.classList.add(this._sectionTagClassName);
-		sectionTag.id = this._sectionTagClassName;
+		sectionTag.classList.add(this._sectionTagValue);
+		sectionTag.id = this._sectionTagValue;
 
 		var sectionHeaderDiv = document.createElement("div");
 		sectionHeaderDiv.classList.add(`${styles.welcome}`);
-		sectionHeaderDiv.innerHTML = `
-    <img alt="" src="${
+		sectionHeaderDiv.innerHTML = `<img alt="" src="${
 			this._isDarkTheme
 				? require("./assets/welcome-dark.png")
 				: require("./assets/welcome-light.png")
@@ -46,34 +50,43 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
         <div>Web part property value: <strong>${escape(this.properties.tenantURL)}</strong></div>
         `;
 
-		var scriptTag = document.createElement("script");
-		scriptTag.setAttribute("crossorigin", "anonymous");
-		scriptTag.setAttribute("type", "application/javascript");
-		scriptTag.setAttribute(
-			"src",
-			"https://cdn.jsdelivr.net/npm/@qlik/embed-web-components@1/dist/index.min.js"
-		);
-		scriptTag.setAttribute("data-host", `${this.properties.tenantURL}`);
-		scriptTag.setAttribute("data-client-id", "a97df0602ad264d00d362686774c7daf");
-		scriptTag.setAttribute(
-			"data-redirect-uri",
-			"https://8nc4hs-admin.sharepoint.com/_layouts/15/workbench.aspx"
-		);
-		scriptTag.setAttribute("data-auto-redirect", "true");
-		scriptTag.setAttribute("data-access-token-storage", "session");
-
-		var embedDiv = document.createElement("div");
-		embedDiv.classList.add(`${styles["qlik-chart"]}`);
-		var embedTag = document.createElement("qlik-embed");
-		embedTag.classList.add(`${styles["qlik-chart"]}`);
-		embedTag.setAttribute("ui", "analytics/chart");
-		embedTag.setAttribute("app-id", "6a27b98d-2f86-4fec-81e6-7caa7bc4e644");
-		embedTag.setAttribute("object-id", "PFCgpZ");
-		embedDiv.appendChild(embedTag);
+		if(this.properties.tenantURL == "https://ea-hybrid-qcs-internal.us.qlikcloud.com")
+		{
+			hasValidConfig = true;
+		}
 
 		sectionTag.appendChild(sectionHeaderDiv);
-		sectionTag.appendChild(scriptTag);
-		sectionTag.appendChild(embedDiv);
+		if (hasValidConfig)
+		{
+			var scriptTag = document.createElement("script");
+			scriptTag.setAttribute("crossorigin", "anonymous");
+			scriptTag.setAttribute("type", "application/javascript");
+			scriptTag.setAttribute(
+				"src",
+				"https://cdn.jsdelivr.net/npm/@qlik/embed-web-components@1/dist/index.min.js"
+			);
+			scriptTag.setAttribute("data-host", `${this.properties.tenantURL}`);
+			scriptTag.setAttribute("data-client-id", "a97df0602ad264d00d362686774c7daf");
+			scriptTag.setAttribute(
+				"data-redirect-uri",
+				"https://8nc4hs-admin.sharepoint.com/_layouts/15/workbench.aspx"
+			);
+			scriptTag.setAttribute("data-auto-redirect", "true");
+			scriptTag.setAttribute("data-access-token-storage", "session");
+
+			var embedDiv = document.createElement("div");
+			embedDiv.classList.add(`${styles["qlik-chart"]}`);
+			var embedTag = document.createElement("qlik-embed");
+			embedTag.classList.add(`${styles["qlik-chart"]}`);
+			embedTag.setAttribute("ui", "analytics/chart");
+			embedTag.setAttribute("app-id", "6a27b98d-2f86-4fec-81e6-7caa7bc4e644");
+			embedTag.setAttribute("object-id", "PFCgpZ");
+			embedDiv.appendChild(embedTag);
+
+			sectionTag.appendChild(scriptTag);
+			sectionTag.appendChild(embedDiv);
+		}
+
 		this.domElement.appendChild(sectionTag);
 	}
 
