@@ -18,7 +18,7 @@ export interface IQlikEmbedWebPartProps {
 
 export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWebPartProps> {
 	private _isDarkTheme: boolean = false;
-	// @ts-ignore
+	// @ts-expect-error
 	private _environmentMessage: string = "";
 	private _sectionTagValue: string = "";
 
