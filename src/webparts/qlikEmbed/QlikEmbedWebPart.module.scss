@@ -1,39 +1,49 @@
-@import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
+@import "~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss";
+
+@font-face {
+	font-family: "Inter"; /* Name you will use to reference the font */
+	src: url("./assets/Inter.ttf") format("truetype");
+	font-weight: normal; /* Optional: specify font weight */
+	font-style: normal; /* Optional: specify font style */
+}
 
 .qlikEmbed {
-  overflow: hidden;
-  padding: 1em;
-  color: "[theme:bodyText, default: #323130]";
-  color: var(--bodyText);
-  &.teams {
-    font-family: $ms-font-family-fallbacks;
-  }
+	overflow: hidden;
+	padding: 1em;
+	color: "[theme:bodyText, default: #323130]";
+	color: var(--bodyText);
+	&.teams {
+		font-family: $ms-font-family-fallbacks;
+	}
 }
 
 .welcome {
-  text-align: center;
+	text-align: center;
+	font-family: Inter;
 }
 
 .welcomeImage {
-  width: 100%;
-  max-width: 420px;
+	width: 100%;
+	max-width: 420px;
 }
 
 .links {
-  a {
-    text-decoration: none;
-    color: "[theme:link, default:#03787c]";
-    color: var(--link); // note: CSS Custom Properties support is limited to modern browsers only
+	a {
+		text-decoration: none;
+		color: "[theme:link, default:#03787c]";
+		color: var(--link); // note: CSS Custom Properties support is limited to modern browsers only
 
-    &:hover {
-      text-decoration: underline;
-      color: "[theme:linkHovered, default: #014446]";
-      color: var(--linkHovered); // note: CSS Custom Properties support is limited to modern browsers only
-    }
-  }
+		&:hover {
+			text-decoration: underline;
+			color: "[theme:linkHovered, default: #014446]";
+			color: var(
+				--linkHovered
+			); // note: CSS Custom Properties support is limited to modern browsers only
+		}
+	}
 }
 
 .qlik-chart {
-  width: 100%;
-  height: 300px;
+	width: 100%;
+	height: 300px;
 }

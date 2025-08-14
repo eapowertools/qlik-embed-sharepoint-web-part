@@ -21,13 +21,11 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 	private _isDarkTheme: boolean = false;
 	private _environmentMessage: string = "";
 	private _sectionTagValue: string = "";
-	
 
 	public render(): void {
 		console.log("My URL: " + document.URL);
 		var hasValidConfig = false;
-		if (this._sectionTagValue == "")
-		{
+		if (this._sectionTagValue == "") {
 			this._sectionTagValue = `${styles.qlikEmbed}${
 				!!this.context.sdks.microsoftTeams ? styles.teams : ""
 			}`;
@@ -41,26 +39,14 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		sectionTag.classList.add(this._sectionTagValue);
 		sectionTag.id = this._sectionTagValue;
 
-		var sectionHeaderDiv = document.createElement("div");
-		sectionHeaderDiv.classList.add(`${styles.welcome}`);
-		sectionHeaderDiv.innerHTML = `<img alt="" src="${
-			this._isDarkTheme
-				? require("./assets/welcome-dark.png")
-				: require("./assets/welcome-light.png")
-		}" class="${styles.welcomeImage}" />
-        <h2>Well done, ${escape(this.context.pageContext.user.displayName)}!</h2>
-        <div>${this._environmentMessage}</div>
-        <div>Web part property value: <strong>${escape(this.properties.tenantURL)}</strong></div>
-        `;
-
-		if(this.properties.tenantURL == "https://ea-hybrid-qcs-internal.us.qlikcloud.com" && this.properties.clientID != "")
-		{
+		if (
+			this.properties.tenantURL == "https://ea-hybrid-qcs-internal.us.qlikcloud.com" &&
+			this.properties.clientID != ""
+		) {
 			hasValidConfig = true;
 		}
 
-		sectionTag.appendChild(sectionHeaderDiv);
-		if (hasValidConfig)
-		{
+		if (hasValidConfig) {
 			var scriptTag = document.createElement("script");
 			scriptTag.setAttribute("crossorigin", "anonymous");
 			scriptTag.setAttribute("type", "application/javascript");
@@ -70,10 +56,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			);
 			scriptTag.setAttribute("data-host", `${this.properties.tenantURL}`);
 			scriptTag.setAttribute("data-client-id", `${this.properties.clientID}`);
-			scriptTag.setAttribute(
-				"data-redirect-uri",
-				`${document.URL}`
-			);
+			scriptTag.setAttribute("data-redirect-uri", `${document.URL}`);
 			scriptTag.setAttribute("data-auto-redirect", "true");
 			scriptTag.setAttribute("data-access-token-storage", "session");
 
@@ -88,6 +71,17 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 			sectionTag.appendChild(scriptTag);
 			sectionTag.appendChild(embedDiv);
+		} else {
+			var sectionHeaderDiv = document.createElement("div");
+			sectionHeaderDiv.classList.add(`${styles.welcome}`);
+
+			sectionHeaderDiv.innerHTML = `<img alt="" src="${
+				this._isDarkTheme ? require("./assets/qlikLogo.png") : require("./assets/qlikLogo.png")
+			}" class="${styles.welcomeImage}" />
+        	<p>Use sharepoint to configure this object to embed a Qlik chart.</p>
+        	`;
+
+			sectionTag.appendChild(sectionHeaderDiv);
 		}
 
 		this.domElement.appendChild(sectionTag);
@@ -171,7 +165,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 								}),
 								PropertyPaneTextField("clientID", {
 									label: strings.clientIDFieldLabel,
-								})
+								}),
 							],
 						},
 						{
@@ -182,9 +176,9 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 								}),
 								PropertyPaneTextField("objectID", {
 									label: strings.objectIDFieldLabel,
-								})
+								}),
 							],
-						}
+						},
 					],
 				},
 			],
