@@ -5,7 +5,6 @@ import {
 } from "@microsoft/sp-property-pane";
 import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
 import type { IReadonlyTheme } from "@microsoft/sp-component-base";
-import { escape } from "@microsoft/sp-lodash-subset";
 
 import styles from "./QlikEmbedWebPart.module.scss";
 import * as strings from "QlikEmbedWebPartStrings";
@@ -19,7 +18,6 @@ export interface IQlikEmbedWebPartProps {
 
 export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWebPartProps> {
 	private _isDarkTheme: boolean = false;
-	private _environmentMessage: string = "";
 	private _sectionTagValue: string = "";
 
 	public render(): void {
