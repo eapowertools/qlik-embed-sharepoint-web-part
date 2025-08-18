@@ -56,7 +56,10 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			);
 			scriptTag.setAttribute("data-host", `${this.properties.tenantURL}`);
 			scriptTag.setAttribute("data-client-id", `${this.properties.clientID}`);
-			scriptTag.setAttribute("data-redirect-uri", `https://8nc4hs-admin.sharepoint.com/_layouts/15/workbench.aspx`);
+			scriptTag.setAttribute(
+				"data-redirect-uri",
+				`https://8nc4hs-admin.sharepoint.com/_layouts/15/workbench.aspx`
+			);
 			scriptTag.setAttribute("data-auto-redirect", "true");
 			scriptTag.setAttribute("data-access-token-storage", "session");
 
