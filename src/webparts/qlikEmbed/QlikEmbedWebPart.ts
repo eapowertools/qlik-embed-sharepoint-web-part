@@ -21,10 +21,15 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 	// @ts-expect-error
 	private _environmentMessage: string = "";
 	private _sectionTagValue: string = "";
+	private _redirectURI: string = "";
 
 	public render(): void {
+		if (this._redirectURI == "") {
+			this._redirectURI =
+				this.context.pageContext.site.absoluteUrl + this.context.pageContext.site.serverRequestPath;
+		}
 		console.log("My URL: " + document.URL);
-		var hasValidConfig = false;
+		let hasValidConfig: boolean = false;
 		if (this._sectionTagValue == "") {
 			this._sectionTagValue = `${styles.qlikEmbed}${
 				!!this.context.sdks.microsoftTeams ? styles.teams : ""
@@ -56,10 +61,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			);
 			scriptTag.setAttribute("data-host", `${this.properties.tenantURL}`);
 			scriptTag.setAttribute("data-client-id", `${this.properties.clientID}`);
-			scriptTag.setAttribute(
-				"data-redirect-uri",
-				`https://8nc4hs-admin.sharepoint.com/_layouts/15/workbench.aspx`
-			);
+			scriptTag.setAttribute("data-redirect-uri", `${this._redirectURI}`);
 			scriptTag.setAttribute("data-auto-redirect", "true");
 			scriptTag.setAttribute("data-access-token-storage", "session");
 
