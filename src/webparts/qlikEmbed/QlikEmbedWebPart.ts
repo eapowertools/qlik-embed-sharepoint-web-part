@@ -1,128 +1,190 @@
-import { Version } from '@microsoft/sp-core-library';
+import { Version } from "@microsoft/sp-core-library";
 import {
-  type IPropertyPaneConfiguration,
-  PropertyPaneTextField
-} from '@microsoft/sp-property-pane';
-import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
-import type { IReadonlyTheme } from '@microsoft/sp-component-base';
-import { escape } from '@microsoft/sp-lodash-subset';
+	type IPropertyPaneConfiguration,
+	PropertyPaneTextField,
+} from "@microsoft/sp-property-pane";
+import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
+import type { IReadonlyTheme } from "@microsoft/sp-component-base";
 
-import styles from './QlikEmbedWebPart.module.scss';
-import * as strings from 'QlikEmbedWebPartStrings';
+import styles from "./QlikEmbedWebPart.module.scss";
+import * as strings from "QlikEmbedWebPartStrings";
 
 export interface IQlikEmbedWebPartProps {
-  description: string;
+	tenantURL: string;
+	clientID: string;
+	appID: string;
+	objectID: string;
 }
 
 export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWebPartProps> {
+	private _isDarkTheme: boolean = false;
+	// @ts-expect-error
+	private _environmentMessage: string = "";
+	private _sectionTagValue: string = "";
 
-  private _isDarkTheme: boolean = false;
-  private _environmentMessage: string = '';
+	public render(): void {
+		console.log("My URL: " + document.URL);
+		var hasValidConfig = false;
+		if (this._sectionTagValue == "") {
+			this._sectionTagValue = `${styles.qlikEmbed}${
+				!!this.context.sdks.microsoftTeams ? styles.teams : ""
+			}`;
+		}
+		// access current DOM by using 'this.domElement'
+		const sectionToRemove = document.getElementById(this._sectionTagValue);
+		if (sectionToRemove != null) {
+			sectionToRemove.remove();
+		}
+		var sectionTag = document.createElement("section");
+		sectionTag.classList.add(this._sectionTagValue);
+		sectionTag.id = this._sectionTagValue;
 
-  public render(): void {
-    this.domElement.innerHTML = `
-    <section class="${styles.qlikEmbed} ${!!this.context.sdks.microsoftTeams ? styles.teams : ''}">
-      <div class="${styles.welcome}">
-        <img alt="" src="${this._isDarkTheme ? require('./assets/welcome-dark.png') : require('./assets/welcome-light.png')}" class="${styles.welcomeImage}" />
-        <h2>Well done, ${escape(this.context.pageContext.user.displayName)}!</h2>
-        <div>${this._environmentMessage}</div>
-        <div>Web part property value: <strong>${escape(this.properties.description)}</strong></div>
-      </div>
-      <div>
-        <h3>Welcome to SharePoint Framework!</h3>
-        <p>
-        The SharePoint Framework (SPFx) is a extensibility model for Microsoft Viva, Microsoft Teams and SharePoint. It's the easiest way to extend Microsoft 365 with automatic Single Sign On, automatic hosting and industry standard tooling.
-        </p>
-        <h4>Learn more about SPFx development:</h4>
-          <ul class="${styles.links}">
-            <li><a href="https://aka.ms/spfx" target="_blank">SharePoint Framework Overview</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-graph" target="_blank">Use Microsoft Graph in your solution</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-teams" target="_blank">Build for Microsoft Teams using SharePoint Framework</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-viva" target="_blank">Build for Microsoft Viva Connections using SharePoint Framework</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-store" target="_blank">Publish SharePoint Framework applications to the marketplace</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-api" target="_blank">SharePoint Framework API reference</a></li>
-            <li><a href="https://aka.ms/m365pnp" target="_blank">Microsoft 365 Developer Community</a></li>
-          </ul>
-      </div>
-    </section>`;
-  }
+		if (
+			this.properties.tenantURL == "https://ea-hybrid-qcs-internal.us.qlikcloud.com" &&
+			this.properties.clientID != ""
+		) {
+			hasValidConfig = true;
+		}
 
-  protected onInit(): Promise<void> {
-    return this._getEnvironmentMessage().then(message => {
-      this._environmentMessage = message;
-    });
-  }
+		if (hasValidConfig) {
+			var scriptTag = document.createElement("script");
+			scriptTag.setAttribute("crossorigin", "anonymous");
+			scriptTag.setAttribute("type", "application/javascript");
+			scriptTag.setAttribute(
+				"src",
+				"https://cdn.jsdelivr.net/npm/@qlik/embed-web-components@1/dist/index.min.js"
+			);
+			scriptTag.setAttribute("data-host", `${this.properties.tenantURL}`);
+			scriptTag.setAttribute("data-client-id", `${this.properties.clientID}`);
+			scriptTag.setAttribute(
+				"data-redirect-uri",
+				`https://8nc4hs-admin.sharepoint.com/_layouts/15/workbench.aspx`
+			);
+			scriptTag.setAttribute("data-auto-redirect", "true");
+			scriptTag.setAttribute("data-access-token-storage", "session");
 
+			var embedDiv = document.createElement("div");
+			embedDiv.classList.add(`${styles["qlik-chart"]}`);
+			var embedTag = document.createElement("qlik-embed");
+			embedTag.classList.add(`${styles["qlik-chart"]}`);
+			embedTag.setAttribute("ui", "analytics/chart");
+			embedTag.setAttribute("app-id", `${this.properties.appID}`);
+			embedTag.setAttribute("object-id", `${this.properties.objectID}`);
+			embedDiv.appendChild(embedTag);
 
+			sectionTag.appendChild(scriptTag);
+			sectionTag.appendChild(embedDiv);
+		} else {
+			var sectionHeaderDiv = document.createElement("div");
+			sectionHeaderDiv.classList.add(`${styles.welcome}`);
 
-  private _getEnvironmentMessage(): Promise<string> {
-    if (!!this.context.sdks.microsoftTeams) { // running in Teams, office.com or Outlook
-      return this.context.sdks.microsoftTeams.teamsJs.app.getContext()
-        .then(context => {
-          let environmentMessage: string = '';
-          switch (context.app.host.name) {
-            case 'Office': // running in Office
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentOffice : strings.AppOfficeEnvironment;
-              break;
-            case 'Outlook': // running in Outlook
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentOutlook : strings.AppOutlookEnvironment;
-              break;
-            case 'Teams': // running in Teams
-            case 'TeamsModern':
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentTeams : strings.AppTeamsTabEnvironment;
-              break;
-            default:
-              environmentMessage = strings.UnknownEnvironment;
-          }
+			sectionHeaderDiv.innerHTML = `<img alt="" src="${
+				this._isDarkTheme ? require("./assets/qlikLogo.png") : require("./assets/qlikLogo.png")
+			}" class="${styles.welcomeImage}" />
+        	<p>Use sharepoint to configure this object to embed a Qlik chart.</p>
+        	`;
 
-          return environmentMessage;
-        });
-    }
+			sectionTag.appendChild(sectionHeaderDiv);
+		}
 
-    return Promise.resolve(this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentSharePoint : strings.AppSharePointEnvironment);
-  }
+		this.domElement.appendChild(sectionTag);
+	}
 
-  protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {
-    if (!currentTheme) {
-      return;
-    }
+	protected onInit(): Promise<void> {
+		return this._getEnvironmentMessage().then((message) => {
+			this._environmentMessage = message;
+		});
+	}
 
-    this._isDarkTheme = !!currentTheme.isInverted;
-    const {
-      semanticColors
-    } = currentTheme;
+	private _getEnvironmentMessage(): Promise<string> {
+		if (!!this.context.sdks.microsoftTeams) {
+			// running in Teams, office.com or Outlook
+			return this.context.sdks.microsoftTeams.teamsJs.app.getContext().then((context) => {
+				let environmentMessage: string = "";
+				switch (context.app.host.name) {
+					case "Office": // running in Office
+						environmentMessage = this.context.isServedFromLocalhost
+							? strings.AppLocalEnvironmentOffice
+							: strings.AppOfficeEnvironment;
+						break;
+					case "Outlook": // running in Outlook
+						environmentMessage = this.context.isServedFromLocalhost
+							? strings.AppLocalEnvironmentOutlook
+							: strings.AppOutlookEnvironment;
+						break;
+					case "Teams": // running in Teams
+					case "TeamsModern":
+						environmentMessage = this.context.isServedFromLocalhost
+							? strings.AppLocalEnvironmentTeams
+							: strings.AppTeamsTabEnvironment;
+						break;
+					default:
+						environmentMessage = strings.UnknownEnvironment;
+				}
 
-    if (semanticColors) {
-      this.domElement.style.setProperty('--bodyText', semanticColors.bodyText || null);
-      this.domElement.style.setProperty('--link', semanticColors.link || null);
-      this.domElement.style.setProperty('--linkHovered', semanticColors.linkHovered || null);
-    }
+				return environmentMessage;
+			});
+		}
 
-  }
+		return Promise.resolve(
+			this.context.isServedFromLocalhost
+				? strings.AppLocalEnvironmentSharePoint
+				: strings.AppSharePointEnvironment
+		);
+	}
 
-  protected get dataVersion(): Version {
-    return Version.parse('1.0');
-  }
+	protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {
+		if (!currentTheme) {
+			return;
+		}
 
-  protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
-    return {
-      pages: [
-        {
-          header: {
-            description: strings.PropertyPaneDescription
-          },
-          groups: [
-            {
-              groupName: strings.BasicGroupName,
-              groupFields: [
-                PropertyPaneTextField('description', {
-                  label: strings.DescriptionFieldLabel
-                })
-              ]
-            }
-          ]
-        }
-      ]
-    };
-  }
+		this._isDarkTheme = !!currentTheme.isInverted;
+		const { semanticColors } = currentTheme;
+
+		if (semanticColors) {
+			this.domElement.style.setProperty("--bodyText", semanticColors.bodyText || null);
+			this.domElement.style.setProperty("--link", semanticColors.link || null);
+			this.domElement.style.setProperty("--linkHovered", semanticColors.linkHovered || null);
+		}
+	}
+
+	protected get dataVersion(): Version {
+		return Version.parse("1.0");
+	}
+
+	protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
+		return {
+			pages: [
+				{
+					header: {
+						description: strings.PropertyPaneDescription,
+					},
+					groups: [
+						{
+							groupName: strings.TenantConfigGroupName,
+							groupFields: [
+								PropertyPaneTextField("tenantURL", {
+									label: strings.tenantURLFieldLabel,
+								}),
+								PropertyPaneTextField("clientID", {
+									label: strings.clientIDFieldLabel,
+								}),
+							],
+						},
+						{
+							groupName: strings.ObjectConfigGroupName,
+							groupFields: [
+								PropertyPaneTextField("appID", {
+									label: strings.appIDFieldLabel,
+								}),
+								PropertyPaneTextField("objectID", {
+									label: strings.objectIDFieldLabel,
+								}),
+							],
+						},
+					],
+				},
+			],
+		};
+	}
 }
