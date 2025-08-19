@@ -3,7 +3,7 @@ define([], function () {
 		PropertyPaneDescription: "Description",
 		TenantConfigGroupName: "Tenant Configuration",
 		ObjectConfigGroupName: "Chart Configuration",
-		tenantURLFieldLabel: "Tenant Name.Region Field (example: tenantName.us)",
+		tenantURLFieldLabel: "Tenant Name.Region Field\n\texample: tenantName.us",
 		clientIDFieldLabel: "Client ID",
 		appIDFieldLabel: "App ID",
 		objectIDFieldLabel: "Object ID",
