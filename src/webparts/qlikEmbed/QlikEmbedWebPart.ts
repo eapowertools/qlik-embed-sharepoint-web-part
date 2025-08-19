@@ -54,8 +54,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		sectionTag.id = this._sectionTagValue;
 
 		// VALIDATION
-		// tenant
-		if (this.properties.tenantURL !== "") {
+		if (this.properties.tenantURL !== "" && this.properties.tenantURL !== undefined) {
 			const tenantValidation: string[] = this.properties.tenantURL.split(".");
 			if (tenantValidation[0] === "") {
 				configError = true;
@@ -66,6 +65,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				configErrorMessage = "Tenant property value has invalid region.";
 			}
 
+			// tenant is valid, check client ID
 			if (!configError) {
 				hasValidConfig = false;
 			}
