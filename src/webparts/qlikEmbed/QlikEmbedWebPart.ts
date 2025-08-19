@@ -67,7 +67,14 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 			// tenant is valid, check client ID
 			if (!configError) {
+				// at this point i need to validate the oauth client.
 				hasValidConfig = false;
+
+				// validate App ID here:
+				// if valid, set "hasValidConfig" true
+				// if not valid and not empty, set configError true
+				// and set configErrorMessage with a message saying something useful.
+				// put in code below here.
 			}
 		}
 
