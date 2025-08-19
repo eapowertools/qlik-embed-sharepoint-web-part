@@ -24,6 +24,8 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 	private _redirectURI: string = "";
 
 	public render(): void {
+		// access current DOM by using 'this.domElement'
+
 		if (this._redirectURI == "") {
 			this._redirectURI =
 				this.context.pageContext.site.absoluteUrl + this.context.pageContext.site.serverRequestPath;
@@ -36,14 +38,21 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				!!this.context.sdks.microsoftTeams ? styles.teams : ""
 			}`;
 		}
-		// access current DOM by using 'this.domElement'
+
+		// clear object
 		const sectionToRemove = document.getElementById(this._sectionTagValue);
 		if (sectionToRemove != null) {
 			sectionToRemove.remove();
 		}
-		var sectionTag = document.createElement("section");
+
+		// create new section for chart/message
+		let sectionTag: HTMLElement = document.createElement("section");
 		sectionTag.classList.add(this._sectionTagValue);
 		sectionTag.id = this._sectionTagValue;
+
+		// VALIDATION
+		// tenant
+		this.properties.tenantURL.split(".");
 
 		if (
 			this.properties.tenantURL == "https://ea-hybrid-qcs-internal.us.qlikcloud.com" &&
@@ -53,7 +62,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		}
 
 		if (hasValidConfig) {
-			var scriptTag = document.createElement("script");
+			let scriptTag: HTMLScriptElement = document.createElement("script");
 			scriptTag.setAttribute("crossorigin", "anonymous");
 			scriptTag.setAttribute("type", "application/javascript");
 			scriptTag.setAttribute(
@@ -66,9 +75,9 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			scriptTag.setAttribute("data-auto-redirect", "true");
 			scriptTag.setAttribute("data-access-token-storage", "session");
 
-			var embedDiv = document.createElement("div");
+			let embedDiv: HTMLDivElement = document.createElement("div");
 			embedDiv.classList.add(`${styles["qlik-chart"]}`);
-			var embedTag = document.createElement("qlik-embed");
+			let embedTag: HTMLElement = document.createElement("qlik-embed");
 			embedTag.classList.add(`${styles["qlik-chart"]}`);
 			embedTag.setAttribute("ui", "analytics/chart");
 			embedTag.setAttribute("app-id", `${this.properties.appID}`);
@@ -78,7 +87,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			sectionTag.appendChild(scriptTag);
 			sectionTag.appendChild(embedDiv);
 		} else {
-			var sectionHeaderDiv = document.createElement("div");
+			let sectionHeaderDiv: HTMLDivElement = document.createElement("div");
 			sectionHeaderDiv.classList.add(`${styles.welcome}`);
 
 			sectionHeaderDiv.innerHTML = `<img alt="" src="${
