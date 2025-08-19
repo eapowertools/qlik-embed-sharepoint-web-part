@@ -18,7 +18,7 @@ export interface IQlikEmbedWebPartProps {
 
 export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWebPartProps> {
 	private _isDarkTheme: boolean = false;
-	// @ts-expect-error
+	// @ts-expect-error: This is used in onInit(), but TS doesn't pick up the usage.
 	private _environmentMessage: string = "";
 	private _sectionTagValue: string = "";
 	private _redirectURI: string = "";
@@ -36,7 +36,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		let hasValidConfig: boolean = false;
 		let configError: boolean = false;
 		let configErrorMessage: string = "";
-		if (this._sectionTagValue == "") {
+		if (this._sectionTagValue === "") {
 			this._sectionTagValue = `${styles.qlikEmbed}${
 				!!this.context.sdks.microsoftTeams ? styles.teams : ""
 			}`;
@@ -44,34 +44,35 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 		// clear object
 		const sectionToRemove = document.getElementById(this._sectionTagValue);
-		if (sectionToRemove != null) {
+		if (sectionToRemove !== null) {
 			sectionToRemove.remove();
 		}
 
 		// create new section for chart/message
-		let sectionTag: HTMLElement = document.createElement("section");
+		const sectionTag: HTMLElement = document.createElement("section");
 		sectionTag.classList.add(this._sectionTagValue);
 		sectionTag.id = this._sectionTagValue;
 
 		// VALIDATION
 		// tenant
-		if (this.properties.tenantURL != "") {
+		if (this.properties.tenantURL !== "") {
 			let tenantValidation: string[] = this.properties.tenantURL.split(".");
-			if (tenantValidation[0] == "") {
+			if (tenantValidation[0] === "") {
 				configError = true;
 				configErrorMessage = "Tenant property value has no tenant name.";
 			}
-			if (this._allowedRegions.indexOf(tenantValidation[1]) == -1) {
+			if (this._allowedRegions.indexOf(tenantValidation[1]) === -1) {
 				configError = true;
 				configErrorMessage = "Tenant property value has invalid region.";
 			}
 
 			if (!configError) {
+				hasValidConfig = true;
 			}
 		}
 
 		if (hasValidConfig) {
-			let scriptTag: HTMLScriptElement = document.createElement("script");
+			const scriptTag: HTMLScriptElement = document.createElement("script");
 			scriptTag.setAttribute("crossorigin", "anonymous");
 			scriptTag.setAttribute("type", "application/javascript");
 			scriptTag.setAttribute(
@@ -84,10 +85,10 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			scriptTag.setAttribute("data-auto-redirect", "true");
 			scriptTag.setAttribute("data-access-token-storage", "session");
 
-			let embedDiv: HTMLDivElement = document.createElement("div");
-			embedDiv.classList.add(`${styles["qlik-chart"]}`);
-			let embedTag: HTMLElement = document.createElement("qlik-embed");
-			embedTag.classList.add(`${styles["qlik-chart"]}`);
+			const embedDiv: HTMLDivElement = document.createElement("div");
+			embedDiv.classList.add(`${styles.qlikChart}`);
+			const embedTag: HTMLElement = document.createElement("qlik-embed");
+			embedTag.classList.add(`${styles.qlikChart}`);
 			embedTag.setAttribute("ui", "analytics/chart");
 			embedTag.setAttribute("app-id", `${this.properties.appID}`);
 			embedTag.setAttribute("object-id", `${this.properties.objectID}`);
@@ -96,7 +97,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			sectionTag.appendChild(scriptTag);
 			sectionTag.appendChild(embedDiv);
 		} else {
-			let sectionHeaderDiv: HTMLDivElement = document.createElement("div");
+			const sectionHeaderDiv: HTMLDivElement = document.createElement("div");
 			sectionHeaderDiv.classList.add(`${styles.welcome}`);
 
 			if (!configError) {
