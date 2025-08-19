@@ -28,8 +28,8 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			this._redirectURI =
 				this.context.pageContext.site.absoluteUrl + this.context.pageContext.site.serverRequestPath;
 		}
-
 		console.log("Redirect URI: " + this._redirectURI);
+
 		let hasValidConfig: boolean = false;
 		if (this._sectionTagValue == "") {
 			this._sectionTagValue = `${styles.qlikEmbed}${
