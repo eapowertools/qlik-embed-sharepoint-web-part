@@ -18,42 +18,61 @@ export interface IQlikEmbedWebPartProps {
 
 export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWebPartProps> {
 	private _isDarkTheme: boolean = false;
-	// @ts-expect-error
+	// @ts-expect-error: This is used in onInit(), but TS doesn't pick up the usage.
 	private _environmentMessage: string = "";
 	private _sectionTagValue: string = "";
 	private _redirectURI: string = "";
+	private _allowedRegions: string[] = ["us", "eu", "de", "uk", "se", "sg", "ap", "jp", "in", "ae"];
 
 	public render(): void {
-		if (this._redirectURI == "") {
+		// access current DOM by using 'this.domElement'
+
+		if (this._redirectURI === "") {
 			this._redirectURI =
 				this.context.pageContext.site.absoluteUrl + this.context.pageContext.site.serverRequestPath;
 		}
 		console.log("Redirect URI: " + this._redirectURI);
 
 		let hasValidConfig: boolean = false;
-		if (this._sectionTagValue == "") {
+		let configError: boolean = false;
+		let configErrorMessage: string = "";
+		if (this._sectionTagValue === "") {
 			this._sectionTagValue = `${styles.qlikEmbed}${
 				!!this.context.sdks.microsoftTeams ? styles.teams : ""
 			}`;
 		}
-		// access current DOM by using 'this.domElement'
+
+		// clear object
 		const sectionToRemove = document.getElementById(this._sectionTagValue);
-		if (sectionToRemove != null) {
+		if (sectionToRemove !== null) {
 			sectionToRemove.remove();
 		}
-		var sectionTag = document.createElement("section");
+
+		// create new section for chart/message
+		const sectionTag: HTMLElement = document.createElement("section");
 		sectionTag.classList.add(this._sectionTagValue);
 		sectionTag.id = this._sectionTagValue;
 
-		if (
-			this.properties.tenantURL == "https://ea-hybrid-qcs-internal.us.qlikcloud.com" &&
-			this.properties.clientID != ""
-		) {
-			hasValidConfig = true;
+		// VALIDATION
+		if (this.properties.tenantURL !== "" && this.properties.tenantURL !== undefined) {
+			const tenantValidation: string[] = this.properties.tenantURL.split(".");
+			if (tenantValidation[0] === "") {
+				configError = true;
+				configErrorMessage = `Tenant "${this.properties.tenantURL}" has no tenant name.`;
+			}
+			if (this._allowedRegions.indexOf(tenantValidation[1]) === -1) {
+				configError = true;
+				configErrorMessage = `Tenant "${this.properties.tenantURL}" has an invalid region.`;
+			}
+
+			// tenant is valid, check client ID
+			if (!configError) {
+				hasValidConfig = false;
+			}
 		}
 
 		if (hasValidConfig) {
-			var scriptTag = document.createElement("script");
+			const scriptTag: HTMLScriptElement = document.createElement("script");
 			scriptTag.setAttribute("crossorigin", "anonymous");
 			scriptTag.setAttribute("type", "application/javascript");
 			scriptTag.setAttribute(
@@ -66,10 +85,10 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			scriptTag.setAttribute("data-auto-redirect", "true");
 			scriptTag.setAttribute("data-access-token-storage", "session");
 
-			var embedDiv = document.createElement("div");
-			embedDiv.classList.add(`${styles["qlik-chart"]}`);
-			var embedTag = document.createElement("qlik-embed");
-			embedTag.classList.add(`${styles["qlik-chart"]}`);
+			const embedDiv: HTMLDivElement = document.createElement("div");
+			embedDiv.classList.add(`${styles.qlikChart}`);
+			const embedTag: HTMLElement = document.createElement("qlik-embed");
+			embedTag.classList.add(`${styles.qlikChart}`);
 			embedTag.setAttribute("ui", "analytics/chart");
 			embedTag.setAttribute("app-id", `${this.properties.appID}`);
 			embedTag.setAttribute("object-id", `${this.properties.objectID}`);
@@ -78,14 +97,23 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			sectionTag.appendChild(scriptTag);
 			sectionTag.appendChild(embedDiv);
 		} else {
-			var sectionHeaderDiv = document.createElement("div");
+			const sectionHeaderDiv: HTMLDivElement = document.createElement("div");
 			sectionHeaderDiv.classList.add(`${styles.welcome}`);
 
-			sectionHeaderDiv.innerHTML = `<img alt="" src="${
-				this._isDarkTheme ? require("./assets/qlikLogo.png") : require("./assets/qlikLogo.png")
-			}" class="${styles.welcomeImage}" />
-        	<p>Use sharepoint to configure this object to embed a Qlik chart.</p>
-        	`;
+			if (!configError) {
+				sectionHeaderDiv.innerHTML = `<img alt="" src="${
+					this._isDarkTheme ? require("./assets/qlikLogo.png") : require("./assets/qlikLogo.png")
+				}" class="${styles.welcomeImage}" />
+				<p>Use sharepoint to configure this object to embed a Qlik chart.</p>
+				`;
+			} else {
+				sectionHeaderDiv.innerHTML = `<img alt="" src="${
+					this._isDarkTheme ? require("./assets/qlikLogo.png") : require("./assets/qlikLogo.png")
+				}" class="${styles.welcomeImage}" />
+				<p>Error configuring chart:</p>
+				<p class="${styles.chartError}">${configErrorMessage}</p>
+				`;
+			}
 
 			sectionTag.appendChild(sectionHeaderDiv);
 		}
