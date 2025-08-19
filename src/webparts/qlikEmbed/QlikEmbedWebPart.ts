@@ -27,7 +27,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 	public render(): void {
 		// access current DOM by using 'this.domElement'
 
-		if (this._redirectURI == "") {
+		if (this._redirectURI === "") {
 			this._redirectURI =
 				this.context.pageContext.site.absoluteUrl + this.context.pageContext.site.serverRequestPath;
 		}
@@ -56,7 +56,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		// VALIDATION
 		// tenant
 		if (this.properties.tenantURL !== "") {
-			let tenantValidation: string[] = this.properties.tenantURL.split(".");
+			const tenantValidation: string[] = this.properties.tenantURL.split(".");
 			if (tenantValidation[0] === "") {
 				configError = true;
 				configErrorMessage = "Tenant property value has no tenant name.";
@@ -67,7 +67,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			}
 
 			if (!configError) {
-				hasValidConfig = true;
+				hasValidConfig = false;
 			}
 		}
 
