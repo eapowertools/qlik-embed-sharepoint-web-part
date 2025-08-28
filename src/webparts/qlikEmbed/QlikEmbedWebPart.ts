@@ -77,13 +77,14 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				// put in code below here.
 				if (this.properties.appID !== "" && this.properties.appID !== undefined) {
 					const appIDValidation = this.properties.appID;
-					const appIDValidationRegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+					const appIDValidationRegExp =
+						/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 					const validAppID = appIDValidationRegExp.test(appIDValidation);
-					if ( validAppID === false ) {
-						configError = true;
+					if (validAppID === false) {
 						configErrorMessage = "Please use a valid AppID.";
-					} if ( validAppID === true ) {
-						hasValidConfig = true;
+					}
+					if (validAppID === true) {
+						validatedFields++;
 					}
 				}
 			}
