@@ -10,7 +10,7 @@ import styles from "./QlikEmbedWebPart.module.scss";
 import * as strings from "QlikEmbedWebPartStrings";
 
 export interface IQlikEmbedWebPartProps {
-	tenantURL: string;
+	tenant: string;
 	clientID: string;
 	appID: string;
 	objectID: string;
@@ -29,7 +29,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		let hasEmptyConfig: boolean = true;
 		let hasValidConfig: boolean = false;
 		let configErrorMessage: string = "";
-		const numberOfValidFields: number = 4;
+		const totalNumberOfValidFields: number = 4;
 		let validatedFields: number = 0;
 
 		if (this._redirectURI === "") {
@@ -55,42 +55,40 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		sectionTag.classList.add(this._sectionTagValue);
 		sectionTag.id = this._sectionTagValue;
 
-		// VALIDATION
-		if (this.properties.tenantURL !== "" && this.properties.tenantURL !== undefined) {
+		// Validate Tenant
+		if (this.properties.tenant !== "" && this.properties.tenant !== undefined) {
 			hasEmptyConfig = false;
-			const tenantValidation: string[] = this.properties.tenantURL.split(".");
-			if (tenantValidation[0] === "") {
-				configErrorMessage = `Tenant "${this.properties.tenantURL}" has no tenant name.`;
-			}
-			if (this._allowedRegions.indexOf(tenantValidation[1]) === -1) {
-				configErrorMessage = `Tenant "${this.properties.tenantURL}" has an invalid region.`;
-			}
-		}
-		if (true) {
-			// tenant is valid, check client ID
-			if (!false) {
-				// at this point i need to validate the oauth client.
-				// validate App ID here:
-				// if valid, set "hasValidConfig" true
-				// if not valid and not empty, set configError true
-				// and set configErrorMessage with a message saying something useful.
-				// put in code below here.
-				if (this.properties.appID !== "" && this.properties.appID !== undefined) {
-					const appIDValidation = this.properties.appID;
-					const appIDValidationRegExp =
-						/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
-					const validAppID = appIDValidationRegExp.test(appIDValidation);
-					if (validAppID === false) {
-						configErrorMessage = "Please use a valid AppID.";
-					}
-					if (validAppID === true) {
-						validatedFields++;
-					}
-				}
+			const tenantValidation: string[] = this.properties.tenant.split(".");
+			if (
+				tenantValidation.length != 2 ||
+				this.properties.tenant.charAt(this.properties.tenant.length - 1) === "."
+			) {
+				configErrorMessage = `Tenant field format should be: 'tenantName.region'.`;
+			} else if (tenantValidation[0] === "") {
+				configErrorMessage = `Tenant "${this.properties.tenant}" has no tenant name.`;
+			} else if (this._allowedRegions.indexOf(tenantValidation[1]) === -1) {
+				configErrorMessage = `Tenant "${this.properties.tenant}" has an invalid region.`;
+			} else {
+				validatedFields++;
 			}
 		}
 
-		if (numberOfValidFields == validatedFields) {
+		// Validate App ID
+		if (this.properties.appID !== "" && this.properties.appID !== undefined) {
+			hasEmptyConfig = false;
+			const appIDValidation = this.properties.appID;
+			const appIDValidationRegExp =
+				/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+			const validAppID = appIDValidationRegExp.test(appIDValidation);
+			if (validAppID === false) {
+				configErrorMessage = "Please use a valid AppID.";
+			}
+			if (validAppID === true) {
+				validatedFields++;
+			}
+		}
+
+		if (totalNumberOfValidFields == validatedFields) {
 			hasValidConfig = true;
 		}
 
@@ -102,7 +100,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				"src",
 				"https://cdn.jsdelivr.net/npm/@qlik/embed-web-components@1/dist/index.min.js"
 			);
-			scriptTag.setAttribute("data-host", `${this.properties.tenantURL}`);
+			scriptTag.setAttribute("data-host", `${this.properties.tenant}` + ".qlikcloud.com");
 			scriptTag.setAttribute("data-client-id", `${this.properties.clientID}`);
 			scriptTag.setAttribute("data-redirect-uri", `${this._redirectURI}`);
 			scriptTag.setAttribute("data-auto-redirect", "true");
@@ -217,8 +215,8 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 						{
 							groupName: strings.TenantConfigGroupName,
 							groupFields: [
-								PropertyPaneTextField("tenantURL", {
-									label: strings.tenantURLFieldLabel,
+								PropertyPaneTextField("tenant", {
+									label: strings.tenantFieldLabel,
 								}),
 								PropertyPaneTextField("clientID", {
 									label: strings.clientIDFieldLabel,
