@@ -26,6 +26,11 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 	public render(): void {
 		// access current DOM by using 'this.domElement'
+		let hasEmptyConfig: boolean = true;
+		let hasValidConfig: boolean = false;
+		let configErrorMessage: string = "";
+		const numberOfValidFields: number = 4;
+		let validatedFields: number = 0;
 
 		if (this._redirectURI === "") {
 			this._redirectURI =
@@ -33,9 +38,6 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		}
 		console.log("Redirect URI: " + this._redirectURI);
 
-		let hasValidConfig: boolean = false;
-		let configError: boolean = false;
-		let configErrorMessage: string = "";
 		if (this._sectionTagValue === "") {
 			this._sectionTagValue = `${styles.qlikEmbed}${
 				!!this.context.sdks.microsoftTeams ? styles.teams : ""
@@ -55,27 +57,29 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 		// VALIDATION
 		if (this.properties.tenantURL !== "" && this.properties.tenantURL !== undefined) {
+			hasEmptyConfig = false;
 			const tenantValidation: string[] = this.properties.tenantURL.split(".");
 			if (tenantValidation[0] === "") {
-				configError = true;
 				configErrorMessage = `Tenant "${this.properties.tenantURL}" has no tenant name.`;
 			}
 			if (this._allowedRegions.indexOf(tenantValidation[1]) === -1) {
-				configError = true;
 				configErrorMessage = `Tenant "${this.properties.tenantURL}" has an invalid region.`;
 			}
-
+		}
+		if (true) {
 			// tenant is valid, check client ID
-			if (!configError) {
+			if (!false) {
 				// at this point i need to validate the oauth client.
-				hasValidConfig = false;
-
 				// validate App ID here:
 				// if valid, set "hasValidConfig" true
 				// if not valid and not empty, set configError true
 				// and set configErrorMessage with a message saying something useful.
 				// put in code below here.
 			}
+		}
+
+		if (numberOfValidFields == validatedFields) {
+			hasValidConfig = true;
 		}
 
 		if (hasValidConfig) {
@@ -107,7 +111,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			const sectionHeaderDiv: HTMLDivElement = document.createElement("div");
 			sectionHeaderDiv.classList.add(`${styles.welcome}`);
 
-			if (!configError) {
+			if (hasEmptyConfig) {
 				sectionHeaderDiv.innerHTML = `<img alt="" src="${
 					this._isDarkTheme ? require("./assets/qlikLogo.png") : require("./assets/qlikLogo.png")
 				}" class="${styles.welcomeImage}" />
