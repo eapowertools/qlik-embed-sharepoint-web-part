@@ -15,7 +15,7 @@ export interface IQlikEmbedWebPartProps {
 	appID: string;
 	objectID: string;
 }
-
+// some change to be deleted later
 export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWebPartProps> {
 	private _isDarkTheme: boolean = false;
 	// @ts-expect-error: This is used in onInit(), but TS doesn't pick up the usage.
@@ -75,6 +75,17 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				// if not valid and not empty, set configError true
 				// and set configErrorMessage with a message saying something useful.
 				// put in code below here.
+				if (this.properties.appID !== "" && this.properties.appID !== undefined) {
+					const appIDValidation = this.properties.appID;
+					const appIDValidationRegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+					const validAppID = appIDValidationRegExp.test(appIDValidation);
+					if ( validAppID === false ) {
+						configError = true;
+						configErrorMessage = "Please use a valid AppID.";
+					} if ( validAppID === true ) {
+						hasValidConfig = true;
+					}
+				}
 			}
 		}
 
