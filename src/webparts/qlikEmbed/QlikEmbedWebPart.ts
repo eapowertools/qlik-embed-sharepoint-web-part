@@ -73,6 +73,23 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			}
 		}
 
+		// Validate OAuth Client
+		if (this.properties.clientID !== "" && this.properties.clientID !== undefined) {
+			hasEmptyConfig = false;
+			const clientIDValidationRegExp = /^[A-Fa-f0-9]{32}$/;
+			const validClientID = clientIDValidationRegExp.test(this.properties.clientID);
+			if (validClientID === false) {
+				configErrorMessage += `The client ID provided: "${this.properties.clientID}" is invalid.\n`;
+			}
+			if (validClientID === true) {
+				// tenant must be valid, so test the client ID
+				if (validatedFields == 1) {
+					// fetch to validate the client ID works with the tenant.
+					validatedFields++;
+				}
+			}
+		}
+
 		// Validate App ID
 		if (this.properties.appID !== "" && this.properties.appID !== undefined) {
 			hasEmptyConfig = false;
@@ -80,7 +97,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 			const validAppID = appIDValidationRegExp.test(this.properties.appID);
 			if (validAppID === false) {
-				configErrorMessage += `The App ID provided: "${this.properties.appID}" is not valid.\n`;
+				configErrorMessage += `The App ID provided: "${this.properties.appID}" is invalid.\n`;
 			}
 			if (validAppID === true) {
 				validatedFields++;
