@@ -63,11 +63,11 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				tenantValidation.length != 2 ||
 				this.properties.tenant.charAt(this.properties.tenant.length - 1) === "."
 			) {
-				configErrorMessage = `Tenant field format should be: 'tenantName.region'.`;
+				configErrorMessage += `Tenant field format should be: 'tenantName.region'.\n`;
 			} else if (tenantValidation[0] === "") {
-				configErrorMessage = `Tenant "${this.properties.tenant}" has no tenant name.`;
+				configErrorMessage += `Tenant "${this.properties.tenant}" has no tenant name.\n`;
 			} else if (this._allowedRegions.indexOf(tenantValidation[1]) === -1) {
-				configErrorMessage = `Tenant "${this.properties.tenant}" has an invalid region.`;
+				configErrorMessage += `Tenant "${this.properties.tenant}" has an invalid region.\n`;
 			} else {
 				validatedFields++;
 			}
@@ -76,16 +76,19 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		// Validate App ID
 		if (this.properties.appID !== "" && this.properties.appID !== undefined) {
 			hasEmptyConfig = false;
-			const appIDValidation = this.properties.appID;
 			const appIDValidationRegExp =
 				/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
-			const validAppID = appIDValidationRegExp.test(appIDValidation);
+			const validAppID = appIDValidationRegExp.test(this.properties.appID);
 			if (validAppID === false) {
-				configErrorMessage = "Please use a valid AppID.";
+				configErrorMessage += `The App ID provided: "${this.properties.appID}" is not valid.\n`;
 			}
 			if (validAppID === true) {
 				validatedFields++;
 			}
+		}
+
+		if (configErrorMessage !== "") {
+			configErrorMessage = configErrorMessage.slice(0, -1);
 		}
 
 		if (totalNumberOfValidFields == validatedFields) {
