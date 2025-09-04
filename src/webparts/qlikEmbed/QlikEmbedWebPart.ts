@@ -35,7 +35,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 	private _redirectURI: string = "";
 	private _allowedRegions: string[] = ["us", "eu", "de", "uk", "se", "sg", "ap", "jp", "in", "ae"];
 
-	public render(): void {
+	public async render(): void {
 		// access current DOM by using 'this.domElement'
 		let hasValidConfig: boolean = false;
 		let configErrorMessage: string = "";
@@ -94,37 +94,24 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				if (validatedFields === 1) {
 					const oAuthURL: string = `https://${this.properties.tenant}.qlikcloud.com/oauth/authorize?client_id=${this.properties.clientID}&code_challenge_method=S256&redirect_uri=${this._redirectURI}&state=testClientID
 					`;
-
-					fetch(oAuthURL, { redirect: "manual" })
-						.then((response) => {
-							if (response.type === "opaqueredirect") {
-								validatedFields++;
-							} else {
-								response
-									.text()
-									.then((message) => {
-										const messageParsed: Errors = JSON.parse(message) as Errors;
-										if (messageParsed.errors[0].title === "Invalid client_id") {
-											configErrorMessage += `Client ID "${this.properties.clientID}" is invalid for tenant "${this.properties.tenant}".<br>`;
-										} else if (messageParsed.errors[0].title === "Invalid redirect_uri") {
-											configErrorMessage += `Redirect URI "${this._redirectURI}" is not registered for OAuth client "${this.properties.clientID}".<br>`;
-										} else if (
-											messageParsed.errors[0].title ===
-											"No authentication configured for this hostname"
-										) {
-											configErrorMessage += `Invalid tenant "${this.properties.tenant}".<br>`;
-										} else {
-											configErrorMessage += `OAuth Validation error: "${messageParsed.errors[0].title}".<br>`;
-										}
-									})
-									.catch((messageError) => {
-										console.log(messageError.message);
-									});
-							}
-						})
-						.catch((error) => {
-							console.log(error.message);
-						});
+					const response = await fetch(oAuthURL, { redirect: "manual" });
+					if (response.type === "opaqueredirect") {
+						validatedFields++;
+					} else {
+						const message = await response.text();
+						const messageParsed: Errors = JSON.parse(message) as Errors;
+						if (messageParsed.errors[0].title === "Invalid client_id") {
+							configErrorMessage += `Client ID "${this.properties.clientID}" is invalid for tenant "${this.properties.tenant}".<br>`;
+						} else if (messageParsed.errors[0].title === "Invalid redirect_uri") {
+							configErrorMessage += `Redirect URI "${this._redirectURI}" is not registered for OAuth client "${this.properties.clientID}".<br>`;
+						} else if (
+							messageParsed.errors[0].title === "No authentication configured for this hostname"
+						) {
+							configErrorMessage += `Invalid tenant "${this.properties.tenant}".<br>`;
+						} else {
+							configErrorMessage += `OAuth Validation error: "${messageParsed.errors[0].title}".<br>`;
+						}
+					}
 				}
 			}
 		}
