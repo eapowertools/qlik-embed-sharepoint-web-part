@@ -101,8 +101,8 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		// Check to see if the Oauth Client is valid against the tenant
 		if (validatedFields === 2) {
 			const oAuthURL: string = `https://${this.properties.tenant}.qlikcloud.com/oauth/authorize?client_id=${this.properties.clientID}`;
-			try {
-				fetch(oAuthURL).then((response) => {
+			fetch(oAuthURL)
+				.then((response) => {
 					response.text().then((message) => {
 						const messageParsed: Errors = JSON.parse(message) as Errors;
 						if (messageParsed.errors[0].title === "Invalid client_id") {
@@ -115,10 +115,10 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 							configErrorMessage += `Invalid tenant "${this.properties.tenant}".\n`;
 						}
 					});
+				})
+				.catch((error) => {
+					console.log(error.message);
 				});
-			} catch (error) {
-				console.log(error.message);
-			}
 		}
 
 		// Validate App ID
