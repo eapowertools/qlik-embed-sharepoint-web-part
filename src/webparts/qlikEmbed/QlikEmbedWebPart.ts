@@ -97,6 +97,11 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 						if (messageParsed.errors[0].title === "Invalid client_id") {
 							validatedFields--;
 							configErrorMessage += `Client ID "${this.properties.clientID}" is invalid for tenant "${this.properties.tenant}".\n`;
+						} else if (
+							messageParsed.errors[0].title === "No authentication configured for this hostname"
+						) {
+							validatedFields--;
+							configErrorMessage += `Invalid tenant "${this.properties.tenant}".\n`;
 						}
 					});
 				});
