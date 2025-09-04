@@ -92,12 +92,15 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			if (validClientID === true) {
 				// tenant must be valid, so test the client ID
 				if (validatedFields === 1) {
-					const oAuthURL: string = `https://${this.properties.tenant}.qlikcloud.com/oauth/authorize?client_id=${this.properties.clientID}`;
+					const oAuthURL: string = `https://${this.properties.tenant}.qlikcloud.com/oauth/authorize?client_id=${this.properties.clientID}&code_challenge_method=S256&redirect_uri=${this._redirectURI}&state=testClientID
+					`;
 					fetch(oAuthURL)
 						.then((response) => {
 							response
 								.text()
 								.then((message) => {
+									console.log(`Response status code: ${response.status}`);
+									console.log(`Message: ${message}`);
 									const messageParsed: Errors = JSON.parse(message) as Errors;
 									if (messageParsed.errors[0].title === "Invalid client_id") {
 										configErrorMessage += `Client ID "${this.properties.clientID}" is invalid for tenant "${this.properties.tenant}".<br>`;
