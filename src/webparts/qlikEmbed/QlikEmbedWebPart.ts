@@ -26,7 +26,6 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 	public render(): void {
 		// access current DOM by using 'this.domElement'
-		let hasEmptyConfig: boolean = true;
 		let hasValidConfig: boolean = false;
 		let configErrorMessage: string = "";
 		const totalNumberOfValidFields: number = 4;
@@ -75,7 +74,6 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 		// Validate OAuth Client
 		if (this.properties.clientID !== "" && this.properties.clientID !== undefined) {
-			hasEmptyConfig = false;
 			const clientIDValidationRegExp = /^[A-Fa-f0-9]{32}$/;
 			const validClientID = clientIDValidationRegExp.test(this.properties.clientID);
 			if (validClientID === false) {
@@ -90,17 +88,49 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			}
 		}
 
+		// Check to see if the Oauth Client is valid against the tenant
+		if (validatedFields == 2) {
+			const oAuthURL: string = `https://${this.properties.tenant}.qlikcloud.com/oauth/authorize?client_id=${this.properties.clientID}`;
+			try {
+				fetch(oAuthURL).then((response) => {
+					response.text().then((message) => {
+						const messageParsed: any = JSON.parse(message);
+						if (messageParsed.errors[0].title === "Invalid client_id") {
+							validatedFields--;
+							configErrorMessage += `Client ID "${this.properties.clientID}" is invalid for tenant "${this.properties.tenant}".\n`;
+						}
+					});
+				});
+			} catch (error) {
+				console.log(error.message);
+			}
+		}
+
 		// Validate App ID
 		if (this.properties.appID !== "" && this.properties.appID !== undefined) {
-			hasEmptyConfig = false;
-			const appIDValidationRegExp =
+			const appIDValidationRegExp: RegExp =
 				/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 			const validAppID = appIDValidationRegExp.test(this.properties.appID);
-			if (validAppID === false) {
-				configErrorMessage += `The App ID provided: "${this.properties.appID}" is invalid.\n`;
-			}
 			if (validAppID === true) {
 				validatedFields++;
+			} else {
+				configErrorMessage += `The App ID provided: "${this.properties.appID}" is invalid.\n`;
+			}
+		}
+
+		// Validate Object ID
+		if (this.properties.objectID !== "" && this.properties.objectID !== undefined) {
+			const objectIDValidationRegExp: RegExp =
+				/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+			const validObjectID = objectIDValidationRegExp.test(this.properties.objectID);
+			if (validObjectID === true) {
+				validatedFields++;
+			} else {
+				if (this.properties.objectID.length == 5) {
+					validatedFields++;
+				} else {
+					configErrorMessage += `The Object ID provided: "${this.properties.objectID}" is invalid.\n`;
+				}
 			}
 		}
 
@@ -141,7 +171,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			const sectionHeaderDiv: HTMLDivElement = document.createElement("div");
 			sectionHeaderDiv.classList.add(`${styles.welcome}`);
 
-			if (hasEmptyConfig) {
+			if (configErrorMessage === "") {
 				sectionHeaderDiv.innerHTML = `<img alt="" src="${
 					this._isDarkTheme ? require("./assets/qlikLogo.png") : require("./assets/qlikLogo.png")
 				}" class="${styles.welcomeImage}" />
