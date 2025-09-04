@@ -103,18 +103,23 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			const oAuthURL: string = `https://${this.properties.tenant}.qlikcloud.com/oauth/authorize?client_id=${this.properties.clientID}`;
 			fetch(oAuthURL)
 				.then((response) => {
-					response.text().then((message) => {
-						const messageParsed: Errors = JSON.parse(message) as Errors;
-						if (messageParsed.errors[0].title === "Invalid client_id") {
-							validatedFields--;
-							configErrorMessage += `Client ID "${this.properties.clientID}" is invalid for tenant "${this.properties.tenant}".\n`;
-						} else if (
-							messageParsed.errors[0].title === "No authentication configured for this hostname"
-						) {
-							validatedFields--;
-							configErrorMessage += `Invalid tenant "${this.properties.tenant}".\n`;
-						}
-					});
+					response
+						.text()
+						.then((message) => {
+							const messageParsed: Errors = JSON.parse(message) as Errors;
+							if (messageParsed.errors[0].title === "Invalid client_id") {
+								validatedFields--;
+								configErrorMessage += `Client ID "${this.properties.clientID}" is invalid for tenant "${this.properties.tenant}".\n`;
+							} else if (
+								messageParsed.errors[0].title === "No authentication configured for this hostname"
+							) {
+								validatedFields--;
+								configErrorMessage += `Invalid tenant "${this.properties.tenant}".\n`;
+							}
+						})
+						.catch((messageError) => {
+							console.log(messageError.message);
+						});
 				})
 				.catch((error) => {
 					console.log(error.message);
