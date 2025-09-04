@@ -165,7 +165,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				"src",
 				"https://cdn.jsdelivr.net/npm/@qlik/embed-web-components@1/dist/index.min.js"
 			);
-			scriptTag.setAttribute("data-host", `${this.properties.tenant}` + ".qlikcloud.com");
+			scriptTag.setAttribute("data-host", `${this.properties.tenant}.qlikcloud.com`);
 			scriptTag.setAttribute("data-client-id", `${this.properties.clientID}`);
 			scriptTag.setAttribute("data-redirect-uri", `${this._redirectURI}`);
 			scriptTag.setAttribute("data-auto-redirect", "true");
