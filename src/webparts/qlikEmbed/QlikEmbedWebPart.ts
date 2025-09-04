@@ -94,7 +94,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				if (validatedFields === 1) {
 					const oAuthURL: string = `https://${this.properties.tenant}.qlikcloud.com/oauth/authorize?client_id=${this.properties.clientID}&code_challenge_method=S256&redirect_uri=${this._redirectURI}&state=testClientID
 					`;
-					fetch(oAuthURL)
+					fetch(oAuthURL, { redirect: "manual" })
 						.then((response) => {
 							response
 								.text()
