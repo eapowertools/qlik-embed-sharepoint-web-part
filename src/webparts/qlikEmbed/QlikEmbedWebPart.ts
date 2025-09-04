@@ -35,7 +35,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 	private _redirectURI: string = "";
 	private _allowedRegions: string[] = ["us", "eu", "de", "uk", "se", "sg", "ap", "jp", "in", "ae"];
 
-	public async render(): void {
+	public async render(): Promise<void> {
 		// access current DOM by using 'this.domElement'
 		let hasValidConfig: boolean = false;
 		let configErrorMessage: string = "";
