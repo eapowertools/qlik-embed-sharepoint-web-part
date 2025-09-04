@@ -72,11 +72,11 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				tenantValidation.length !== 2 ||
 				this.properties.tenant.charAt(this.properties.tenant.length - 1) === "."
 			) {
-				configErrorMessage += `Tenant field format should be: 'tenantName.region'.\n`;
+				configErrorMessage += `Tenant field format should be: 'tenantName.region'.<br>`;
 			} else if (tenantValidation[0] === "") {
-				configErrorMessage += `Tenant "${this.properties.tenant}" has no tenant name.\n`;
+				configErrorMessage += `Tenant "${this.properties.tenant}" has no tenant name.<br>`;
 			} else if (this._allowedRegions.indexOf(tenantValidation[1]) === -1) {
-				configErrorMessage += `Tenant "${this.properties.tenant}" has an invalid region.\n`;
+				configErrorMessage += `Tenant "${this.properties.tenant}" has an invalid region.<br>`;
 			} else {
 				validatedFields++;
 			}
@@ -87,43 +87,38 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			const clientIDValidationRegExp = /^[A-Fa-f0-9]{32}$/;
 			const validClientID = clientIDValidationRegExp.test(this.properties.clientID);
 			if (validClientID === false) {
-				configErrorMessage += `The client ID provided: "${this.properties.clientID}" is invalid.\n`;
+				configErrorMessage += `The client ID provided: "${this.properties.clientID}" is invalid.<br>`;
 			}
 			if (validClientID === true) {
 				// tenant must be valid, so test the client ID
 				if (validatedFields === 1) {
-					// fetch to validate the client ID works with the tenant.
-					validatedFields++;
+					const oAuthURL: string = `https://${this.properties.tenant}.qlikcloud.com/oauth/authorize?client_id=${this.properties.clientID}`;
+					fetch(oAuthURL)
+						.then((response) => {
+							response
+								.text()
+								.then((message) => {
+									const messageParsed: Errors = JSON.parse(message) as Errors;
+									if (messageParsed.errors[0].title === "Invalid client_id") {
+										configErrorMessage += `Client ID "${this.properties.clientID}" is invalid for tenant "${this.properties.tenant}".<br>`;
+									} else if (
+										messageParsed.errors[0].title ===
+										"No authentication configured for this hostname"
+									) {
+										configErrorMessage += `Invalid tenant "${this.properties.tenant}".<br>`;
+									} else {
+										validatedFields++;
+									}
+								})
+								.catch((messageError) => {
+									console.log(messageError.message);
+								});
+						})
+						.catch((error) => {
+							console.log(error.message);
+						});
 				}
 			}
-		}
-
-		// Check to see if the Oauth Client is valid against the tenant
-		if (validatedFields === 2) {
-			const oAuthURL: string = `https://${this.properties.tenant}.qlikcloud.com/oauth/authorize?client_id=${this.properties.clientID}`;
-			fetch(oAuthURL)
-				.then((response) => {
-					response
-						.text()
-						.then((message) => {
-							const messageParsed: Errors = JSON.parse(message) as Errors;
-							if (messageParsed.errors[0].title === "Invalid client_id") {
-								validatedFields--;
-								configErrorMessage += `Client ID "${this.properties.clientID}" is invalid for tenant "${this.properties.tenant}".\n`;
-							} else if (
-								messageParsed.errors[0].title === "No authentication configured for this hostname"
-							) {
-								validatedFields--;
-								configErrorMessage += `Invalid tenant "${this.properties.tenant}".\n`;
-							}
-						})
-						.catch((messageError) => {
-							console.log(messageError.message);
-						});
-				})
-				.catch((error) => {
-					console.log(error.message);
-				});
 		}
 
 		// Validate App ID
@@ -134,7 +129,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			if (validAppID === true) {
 				validatedFields++;
 			} else {
-				configErrorMessage += `The App ID provided: "${this.properties.appID}" is invalid.\n`;
+				configErrorMessage += `The App ID provided: "${this.properties.appID}" is invalid.<br>`;
 			}
 		}
 
@@ -149,7 +144,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				if (5 <= this.properties.objectID.length && this.properties.objectID.length <= 6) {
 					validatedFields++;
 				} else {
-					configErrorMessage += `The Object ID provided: "${this.properties.objectID}" is invalid.\n`;
+					configErrorMessage += `The Object ID provided: "${this.properties.objectID}" is invalid.<br>`;
 				}
 			}
 		}
