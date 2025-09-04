@@ -149,10 +149,6 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			}
 		}
 
-		if (configErrorMessage !== "") {
-			configErrorMessage = configErrorMessage.slice(0, -1);
-		}
-
 		if (totalNumberOfValidFields === validatedFields) {
 			hasValidConfig = true;
 		}
