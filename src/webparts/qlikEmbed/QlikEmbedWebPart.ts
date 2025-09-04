@@ -97,7 +97,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 					fetch(oAuthURL, { redirect: "manual" })
 						.then((response) => {
-							if (response.type == "opaqueredirect") {
+							if (response.type === "opaqueredirect") {
 								validatedFields++;
 							} else {
 								response
