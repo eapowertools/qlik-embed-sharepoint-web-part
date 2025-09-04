@@ -10,11 +10,22 @@ import styles from "./QlikEmbedWebPart.module.scss";
 import * as strings from "QlikEmbedWebPartStrings";
 
 export interface IQlikEmbedWebPartProps {
-	tenantURL: string;
+	tenant: string;
 	clientID: string;
 	appID: string;
 	objectID: string;
 }
+
+interface ErrorMessage {
+	title: string;
+	code: string;
+	status: number;
+}
+
+interface Errors {
+	errors: Array<ErrorMessage>;
+}
+
 // some change to be deleted later
 export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWebPartProps> {
 	private _isDarkTheme: boolean = false;
@@ -26,6 +37,10 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 	public render(): void {
 		// access current DOM by using 'this.domElement'
+		let hasValidConfig: boolean = false;
+		let configErrorMessage: string = "";
+		const totalNumberOfValidFields: number = 4;
+		let validatedFields: number = 0;
 
 		if (this._redirectURI === "") {
 			this._redirectURI =
@@ -33,9 +48,6 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		}
 		console.log("Redirect URI: " + this._redirectURI);
 
-		let hasValidConfig: boolean = false;
-		let configError: boolean = false;
-		let configErrorMessage: string = "";
 		if (this._sectionTagValue === "") {
 			this._sectionTagValue = `${styles.qlikEmbed}${
 				!!this.context.sdks.microsoftTeams ? styles.teams : ""
@@ -53,40 +65,92 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		sectionTag.classList.add(this._sectionTagValue);
 		sectionTag.id = this._sectionTagValue;
 
-		// VALIDATION
-		if (this.properties.tenantURL !== "" && this.properties.tenantURL !== undefined) {
-			const tenantValidation: string[] = this.properties.tenantURL.split(".");
-			if (tenantValidation[0] === "") {
-				configError = true;
-				configErrorMessage = `Tenant "${this.properties.tenantURL}" has no tenant name.`;
+		// Validate Tenant
+		if (this.properties.tenant !== "" && this.properties.tenant !== undefined) {
+			const tenantValidation: string[] = this.properties.tenant.split(".");
+			if (
+				tenantValidation.length !== 2 ||
+				this.properties.tenant.charAt(this.properties.tenant.length - 1) === "."
+			) {
+				configErrorMessage += `Tenant field format should be: 'tenantName.region'.<br>`;
+			} else if (tenantValidation[0] === "") {
+				configErrorMessage += `Tenant "${this.properties.tenant}" has no tenant name.<br>`;
+			} else if (this._allowedRegions.indexOf(tenantValidation[1]) === -1) {
+				configErrorMessage += `Tenant "${this.properties.tenant}" has an invalid region.<br>`;
+			} else {
+				validatedFields++;
 			}
-			if (this._allowedRegions.indexOf(tenantValidation[1]) === -1) {
-				configError = true;
-				configErrorMessage = `Tenant "${this.properties.tenantURL}" has an invalid region.`;
+		}
+
+		// Validate OAuth Client
+		if (this.properties.clientID !== "" && this.properties.clientID !== undefined) {
+			const clientIDValidationRegExp = /^[A-Fa-f0-9]{32}$/;
+			const validClientID = clientIDValidationRegExp.test(this.properties.clientID);
+			if (validClientID === false) {
+				configErrorMessage += `The client ID provided: "${this.properties.clientID}" is invalid.<br>`;
 			}
-
-			// tenant is valid, check client ID
-			if (!configError) {
-				// at this point i need to validate the oauth client.
-				// hasValidConfig = true;
-
-				// validate App ID here:
-				// if valid, set "hasValidConfig" true
-				// if not valid and not empty, set configError true
-				// and set configErrorMessage with a message saying something useful.
-				// put in code below here.
-				if (this.properties.appID !== "" && this.properties.appID !== undefined) {
-					const appIDValidation = this.properties.appID;
-					const appIDValidationRegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
-					const validAppID = appIDValidationRegExp.test(appIDValidation);
-					if ( validAppID === false ) {
-						configError = true;
-						configErrorMessage = "Please use a valid AppID.";
-					} if ( validAppID === true ) {
-						hasValidConfig = true;
-					}
+			if (validClientID === true) {
+				// tenant must be valid, so test the client ID
+				if (validatedFields === 1) {
+					const oAuthURL: string = `https://${this.properties.tenant}.qlikcloud.com/oauth/authorize?client_id=${this.properties.clientID}`;
+					fetch(oAuthURL)
+						.then((response) => {
+							response
+								.text()
+								.then((message) => {
+									const messageParsed: Errors = JSON.parse(message) as Errors;
+									if (messageParsed.errors[0].title === "Invalid client_id") {
+										configErrorMessage += `Client ID "${this.properties.clientID}" is invalid for tenant "${this.properties.tenant}".<br>`;
+									} else if (
+										messageParsed.errors[0].title ===
+										"No authentication configured for this hostname"
+									) {
+										configErrorMessage += `Invalid tenant "${this.properties.tenant}".<br>`;
+									} else {
+										validatedFields++;
+									}
+								})
+								.catch((messageError) => {
+									console.log(messageError.message);
+								});
+						})
+						.catch((error) => {
+							console.log(error.message);
+						});
 				}
 			}
+		}
+
+		// Validate App ID
+		if (this.properties.appID !== "" && this.properties.appID !== undefined) {
+			const appIDValidationRegExp: RegExp =
+				/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+			const validAppID = appIDValidationRegExp.test(this.properties.appID);
+			if (validAppID === true) {
+				validatedFields++;
+			} else {
+				configErrorMessage += `The App ID provided: "${this.properties.appID}" is invalid.<br>`;
+			}
+		}
+
+		// Validate Object ID
+		if (this.properties.objectID !== "" && this.properties.objectID !== undefined) {
+			const objectIDValidationRegExp: RegExp =
+				/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+			const validObjectID = objectIDValidationRegExp.test(this.properties.objectID);
+			if (validObjectID === true) {
+				validatedFields++;
+			} else {
+				if (5 <= this.properties.objectID.length && this.properties.objectID.length <= 6) {
+					validatedFields++;
+				} else {
+					configErrorMessage += `The Object ID provided: "${this.properties.objectID}" is invalid.<br>`;
+				}
+			}
+		}
+
+		if (totalNumberOfValidFields === validatedFields) {
+			hasValidConfig = true;
 		}
 
 		if (hasValidConfig) {
@@ -97,7 +161,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				"src",
 				"https://cdn.jsdelivr.net/npm/@qlik/embed-web-components@1/dist/index.min.js"
 			);
-			scriptTag.setAttribute("data-host", `${this.properties.tenantURL}`);
+			scriptTag.setAttribute("data-host", `${this.properties.tenant}.qlikcloud.com`);
 			scriptTag.setAttribute("data-client-id", `${this.properties.clientID}`);
 			scriptTag.setAttribute("data-redirect-uri", `${this._redirectURI}`);
 			scriptTag.setAttribute("data-auto-redirect", "true");
@@ -118,7 +182,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			const sectionHeaderDiv: HTMLDivElement = document.createElement("div");
 			sectionHeaderDiv.classList.add(`${styles.welcome}`);
 
-			if (!configError) {
+			if (configErrorMessage === "") {
 				sectionHeaderDiv.innerHTML = `<img alt="" src="${
 					this._isDarkTheme ? require("./assets/qlikLogo.png") : require("./assets/qlikLogo.png")
 				}" class="${styles.welcomeImage}" />
@@ -212,8 +276,8 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 						{
 							groupName: strings.TenantConfigGroupName,
 							groupFields: [
-								PropertyPaneTextField("tenantURL", {
-									label: strings.tenantURLFieldLabel,
+								PropertyPaneTextField("tenant", {
+									label: strings.tenantFieldLabel,
 								}),
 								PropertyPaneTextField("clientID", {
 									label: strings.clientIDFieldLabel,

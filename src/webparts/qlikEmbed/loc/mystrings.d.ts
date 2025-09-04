@@ -2,7 +2,7 @@ declare interface IQlikEmbedWebPartStrings {
 	PropertyPaneDescription: string;
 	TenantConfigGroupName: string;
 	ObjectConfigGroupName: string;
-	tenantURLFieldLabel: string;
+	tenantFieldLabel: string;
 	clientIDFieldLabel: string;
 	appIDFieldLabel: string;
 	objectIDFieldLabel: string;
