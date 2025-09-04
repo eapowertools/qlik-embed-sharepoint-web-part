@@ -56,7 +56,6 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 		// Validate Tenant
 		if (this.properties.tenant !== "" && this.properties.tenant !== undefined) {
-			hasEmptyConfig = false;
 			const tenantValidation: string[] = this.properties.tenant.split(".");
 			if (
 				tenantValidation.length != 2 ||
