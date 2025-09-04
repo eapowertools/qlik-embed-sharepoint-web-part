@@ -146,7 +146,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			if (validObjectID === true) {
 				validatedFields++;
 			} else {
-				if (this.properties.objectID.length === 5) {
+				if (5 <= this.properties.objectID.length && this.properties.objectID.length <= 6) {
 					validatedFields++;
 				} else {
 					configErrorMessage += `The Object ID provided: "${this.properties.objectID}" is invalid.\n`;
