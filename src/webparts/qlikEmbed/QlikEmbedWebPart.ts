@@ -103,7 +103,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 								response
 									.text()
 									.then((message) => {
-										const messageParsed = JSON.parse(message);
+										const messageParsed: Errors = JSON.parse(message) as Errors;
 										if (messageParsed.errors[0].title === "Invalid client_id") {
 											configErrorMessage += `Client ID "${this.properties.clientID}" is invalid for tenant "${this.properties.tenant}".<br>`;
 										} else if (messageParsed.errors[0].title === "Invalid redirect_uri") {
