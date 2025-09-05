@@ -2,6 +2,7 @@ import { Version } from "@microsoft/sp-core-library";
 import {
 	type IPropertyPaneConfiguration,
 	PropertyPaneTextField,
+	PropertyPaneDropdown
 } from "@microsoft/sp-property-pane";
 import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
 import type { IReadonlyTheme } from "@microsoft/sp-component-base";
@@ -14,6 +15,7 @@ export interface IQlikEmbedWebPartProps {
 	clientID: string;
 	appID: string;
 	objectID: string;
+	selectedChartSize: string;
 }
 
 interface ErrorMessage {
@@ -288,6 +290,15 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 								PropertyPaneTextField("objectID", {
 									label: strings.objectIDFieldLabel,
 								}),
+								PropertyPaneDropdown('selectedChartSize', {
+									label: 'Select a chart size',
+									options: [
+									{ key: "small", text: "Small" },
+									{ key: "medium", text: "Medium" },
+									{ key: "large", text: "Large" }
+									],
+									selectedKey: this.properties.selectedChartSize
+								})
 							],
 						},
 					],
