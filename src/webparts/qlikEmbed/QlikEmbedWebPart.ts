@@ -168,6 +168,17 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			embedDiv.classList.add(`${styles.qlikChart}`);
 			const embedTag: HTMLElement = document.createElement("qlik-embed");
 			embedTag.classList.add(`${styles.qlikChart}`);
+
+			if(this.properties.selectedChartSize === "small") {
+				embedDiv.classList.add(`${styles.qlikChartSmall}`);
+				embedTag.classList.add(`${styles.qlikChartSmall}`);
+			} else if (this.properties.selectedChartSize === "medium") {
+				embedDiv.classList.add(`${styles.qlikChartMedium}`);
+				embedTag.classList.add(`${styles.qlikChartMedium}`);
+			} else if (this.properties.selectedChartSize === "large") {
+				embedDiv.classList.add(`${styles.qlikChartLarge}`);
+				embedTag.classList.add(`${styles.qlikChartLarge}`);
+			}
 			embedTag.setAttribute("ui", "analytics/chart");
 			embedTag.setAttribute("app-id", `${this.properties.appID}`);
 			embedTag.setAttribute("object-id", `${this.properties.objectID}`);
