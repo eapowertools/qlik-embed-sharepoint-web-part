@@ -291,7 +291,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 									label: strings.objectIDFieldLabel,
 								}),
 								PropertyPaneDropdown('selectedChartSize', {
-									label: 'Select a chart size',
+									label: strings.chartSizeFieldLable,
 									options: [
 									{ key: "small", text: "Small" },
 									{ key: "medium", text: "Medium" },
