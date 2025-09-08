@@ -330,7 +330,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 								PropertyPaneTextField("appID", {
 									label: strings.appIDFieldLabel,
 								}),
-								PropertyPaneDropdown("sheetOrChart", {
+								PropertyPaneDropdown("selectedSheetOrChart", {
 									label: strings.sheetOrChartFieldLabel,
 									options: [
 										{ key: "sheet", text: "Sheet" },
