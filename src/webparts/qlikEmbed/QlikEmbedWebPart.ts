@@ -2,7 +2,7 @@ import { Version } from "@microsoft/sp-core-library";
 import {
 	type IPropertyPaneConfiguration,
 	PropertyPaneTextField,
-	PropertyPaneDropdown
+	PropertyPaneDropdown,
 } from "@microsoft/sp-property-pane";
 import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
 import type { IReadonlyTheme } from "@microsoft/sp-component-base";
@@ -165,21 +165,28 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			scriptTag.setAttribute("data-access-token-storage", "session");
 
 			const embedDiv: HTMLDivElement = document.createElement("div");
-			embedDiv.classList.add(`${styles.qlikChartMedium}`);
+			// embedDiv.classList.add(`${styles.qlikChartMedium}`);
+
+			if (this.properties.selectedChartSize === "small") {
+				embedDiv.classList.add(`${styles.qlikChartSmall}`);
+
+				// embedDiv.classList.replace(`${styles.qlikChartMedium}`, `${styles.qlikChartSmall}`);
+				// embedDiv.classList.replace(`${styles.qlikChartLarge}`, `${styles.qlikChartSmall}`);
+			} else if (this.properties.selectedChartSize === "medium") {
+				embedDiv.classList.add(`${styles.qlikChartMedium}`);
+
+				// embedDiv.classList.replace(`${styles.qlikChartSmall}`, `${styles.qlikChartMedium}`);
+				// embedDiv.classList.replace(`${styles.qlikChartLarge}`, `${styles.qlikChartMedium}`);
+			} else if (this.properties.selectedChartSize === "large") {
+				embedDiv.classList.add(`${styles.qlikChartLarge}`);
+
+				// embedDiv.classList.replace(`${styles.qlikChartSmall}`, `${styles.qlikChartLarge}`);
+				// embedDiv.classList.replace(`${styles.qlikChartMedium}`, `${styles.qlikChartLarge}`);
+			}
 
 			const embedTag: HTMLElement = document.createElement("qlik-embed");
 			embedTag.classList.add(`${styles.qlikChart}`);
 
-			if(this.properties.selectedChartSize === "small") {
-				embedDiv.classList.replace(`${styles.qlikChartMedium}`,`${styles.qlikChartSmall}`);
-				embedDiv.classList.replace(`${styles.qlikChartLarge}`,`${styles.qlikChartSmall}`);
-			} else if (this.properties.selectedChartSize === "medium") {
-				embedDiv.classList.replace(`${styles.qlikChartSmall}`,`${styles.qlikChartMedium}`);
-				embedDiv.classList.replace(`${styles.qlikChartLarge}`,`${styles.qlikChartMedium}`);
-			} else if (this.properties.selectedChartSize === "large") {
-				embedDiv.classList.replace(`${styles.qlikChartSmall}`,`${styles.qlikChartLarge}`);
-				embedDiv.classList.replace(`${styles.qlikChartMedium}`,`${styles.qlikChartLarge}`);
-			}
 			embedTag.setAttribute("ui", "analytics/chart");
 			embedTag.setAttribute("app-id", `${this.properties.appID}`);
 			embedTag.setAttribute("object-id", `${this.properties.objectID}`);
@@ -302,15 +309,15 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 								PropertyPaneTextField("objectID", {
 									label: strings.objectIDFieldLabel,
 								}),
-								PropertyPaneDropdown('selectedChartSize', {
+								PropertyPaneDropdown("selectedChartSize", {
 									label: strings.chartSizeFieldLabel,
 									options: [
-									{ key: "small", text: "Small" },
-									{ key: "medium", text: "Medium" },
-									{ key: "large", text: "Large" }
+										{ key: "small", text: "Small" },
+										{ key: "medium", text: "Medium" },
+										{ key: "large", text: "Large" },
 									],
-									selectedKey: this.properties.selectedChartSize
-								})
+									selectedKey: this.properties.selectedChartSize,
+								}),
 							],
 						},
 					],
