@@ -6,7 +6,7 @@ define([], function () {
 		tenantFieldLabel: "Tenant name.region (example: tenantName.us)",
 		clientIDFieldLabel: "Client ID",
 		appIDFieldLabel: "App ID",
-		objectIDFieldLabel: "Object ID",
+		objectIDFieldLabel: "Sheet/Chart ID",
 		chartSizeFieldLabel: "Chart Size",
 		AppLocalEnvironmentSharePoint:
 			"The app is running on your local environment as SharePoint web part",
