@@ -167,6 +167,13 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			const embedDiv: HTMLDivElement = document.createElement("div");
 			// embedDiv.classList.add(`${styles.qlikChartMedium}`);
 
+			if (
+				this.properties.selectedChartSize === "" ||
+				this.properties.selectedChartSize === undefined
+			) {
+				this.properties.selectedChartSize = "medium";
+			}
+
 			if (this.properties.selectedChartSize === "small") {
 				embedDiv.classList.add(`${styles.qlikChartSmall}`);
 
