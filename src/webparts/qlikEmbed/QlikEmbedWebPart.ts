@@ -201,7 +201,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			} else if (this.properties.selectedSheetOrChart === "chart") {
 				embedTag.setAttribute("ui", "analytics/chart");
 			} else {
-				throw "Invalid UI type.";
+				throw new Error("Invalid UI type.");
 			}
 
 			embedTag.setAttribute("app-id", `${this.properties.appID}`);
@@ -210,7 +210,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			} else if (this.properties.selectedSheetOrChart === "chart") {
 				embedTag.setAttribute("object-id", `${this.properties.sheetChartID}`);
 			} else {
-				throw "Invalid UI type.";
+				throw new Error("Invalid UI type.");
 			}
 			embedDiv.appendChild(embedTag);
 
