@@ -145,6 +145,13 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				}
 			}
 		}
+		// If no size is selected, medium should be default
+		if (
+			this.properties.selectedChartSize === "" ||
+			this.properties.selectedChartSize === undefined
+		) {
+			this.properties.selectedChartSize = "medium";
+		}
 
 		if (totalNumberOfValidFields === validatedFields) {
 			hasValidConfig = true;
@@ -165,30 +172,13 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			scriptTag.setAttribute("data-access-token-storage", "session");
 
 			const embedDiv: HTMLDivElement = document.createElement("div");
-			// embedDiv.classList.add(`${styles.qlikChartMedium}`);
-
-			if (
-				this.properties.selectedChartSize === "" ||
-				this.properties.selectedChartSize === undefined
-			) {
-				this.properties.selectedChartSize = "medium";
-			}
 
 			if (this.properties.selectedChartSize === "small") {
 				embedDiv.classList.add(`${styles.qlikChartSmall}`);
-
-				// embedDiv.classList.replace(`${styles.qlikChartMedium}`, `${styles.qlikChartSmall}`);
-				// embedDiv.classList.replace(`${styles.qlikChartLarge}`, `${styles.qlikChartSmall}`);
 			} else if (this.properties.selectedChartSize === "medium") {
 				embedDiv.classList.add(`${styles.qlikChartMedium}`);
-
-				// embedDiv.classList.replace(`${styles.qlikChartSmall}`, `${styles.qlikChartMedium}`);
-				// embedDiv.classList.replace(`${styles.qlikChartLarge}`, `${styles.qlikChartMedium}`);
 			} else if (this.properties.selectedChartSize === "large") {
 				embedDiv.classList.add(`${styles.qlikChartLarge}`);
-
-				// embedDiv.classList.replace(`${styles.qlikChartSmall}`, `${styles.qlikChartLarge}`);
-				// embedDiv.classList.replace(`${styles.qlikChartMedium}`, `${styles.qlikChartLarge}`);
 			}
 
 			const embedTag: HTMLElement = document.createElement("qlik-embed");
