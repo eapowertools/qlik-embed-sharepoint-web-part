@@ -5,7 +5,9 @@ declare interface IQlikEmbedWebPartStrings {
 	tenantFieldLabel: string;
 	clientIDFieldLabel: string;
 	appIDFieldLabel: string;
-	objectIDFieldLabel: string;
+	sheetOrChartFieldLabel: string;
+	sheetChartIDFieldLabel: string;
+	chartSizeFieldLabel: string;
 	AppLocalEnvironmentSharePoint: string;
 	AppLocalEnvironmentTeams: string;
 	AppLocalEnvironmentOffice: string;

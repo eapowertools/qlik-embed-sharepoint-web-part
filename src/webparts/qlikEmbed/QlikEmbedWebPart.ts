@@ -2,6 +2,7 @@ import { Version } from "@microsoft/sp-core-library";
 import {
 	type IPropertyPaneConfiguration,
 	PropertyPaneTextField,
+	PropertyPaneDropdown,
 } from "@microsoft/sp-property-pane";
 import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
 import type { IReadonlyTheme } from "@microsoft/sp-component-base";
@@ -13,7 +14,9 @@ export interface IQlikEmbedWebPartProps {
 	tenant: string;
 	clientID: string;
 	appID: string;
-	objectID: string;
+	selectedSheetOrChart: string;
+	sheetChartID: string;
+	selectedChartSize: string;
 }
 
 interface ErrorMessage {
@@ -128,20 +131,38 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			}
 		}
 
+		// if no sheet or object is selected, default to sheet
+		// If no size is selected, medium should be default
+		if (
+			this.properties.selectedSheetOrChart === "" ||
+			this.properties.selectedSheetOrChart === undefined
+		) {
+			this.properties.selectedSheetOrChart = "sheet";
+		}
+
 		// Validate Object ID
-		if (this.properties.objectID !== "" && this.properties.objectID !== undefined) {
+		if (this.properties.sheetChartID !== "" && this.properties.sheetChartID !== undefined) {
 			const objectIDValidationRegExp: RegExp =
 				/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
-			const validObjectID = objectIDValidationRegExp.test(this.properties.objectID);
+			const validObjectID = objectIDValidationRegExp.test(this.properties.sheetChartID);
 			if (validObjectID === true) {
 				validatedFields++;
+			} else if (this.properties.selectedSheetOrChart === "sheet") {
+				configErrorMessage += `The Sheet ID provided: "${this.properties.sheetChartID}" is invalid.<br>`;
 			} else {
-				if (5 <= this.properties.objectID.length && this.properties.objectID.length <= 6) {
+				if (5 <= this.properties.sheetChartID.length && this.properties.sheetChartID.length <= 6) {
 					validatedFields++;
 				} else {
-					configErrorMessage += `The Object ID provided: "${this.properties.objectID}" is invalid.<br>`;
+					configErrorMessage += `The Object ID provided: "${this.properties.sheetChartID}" is invalid.<br>`;
 				}
 			}
+		}
+		// If no size is selected, medium should be default
+		if (
+			this.properties.selectedChartSize === "" ||
+			this.properties.selectedChartSize === undefined
+		) {
+			this.properties.selectedChartSize = "medium";
 		}
 
 		if (totalNumberOfValidFields === validatedFields) {
@@ -163,12 +184,36 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			scriptTag.setAttribute("data-access-token-storage", "session");
 
 			const embedDiv: HTMLDivElement = document.createElement("div");
-			embedDiv.classList.add(`${styles.qlikChart}`);
+
+			if (this.properties.selectedChartSize === "small") {
+				embedDiv.classList.add(`${styles.qlikChartSmall}`);
+			} else if (this.properties.selectedChartSize === "medium") {
+				embedDiv.classList.add(`${styles.qlikChartMedium}`);
+			} else if (this.properties.selectedChartSize === "large") {
+				embedDiv.classList.add(`${styles.qlikChartLarge}`);
+			} else if (this.properties.selectedChartSize === "xlarge") {
+				embedDiv.classList.add(`${styles.qlikChartXLarge}`);
+			}
+
 			const embedTag: HTMLElement = document.createElement("qlik-embed");
 			embedTag.classList.add(`${styles.qlikChart}`);
-			embedTag.setAttribute("ui", "analytics/chart");
+
+			if (this.properties.selectedSheetOrChart === "sheet") {
+				embedTag.setAttribute("ui", "classic/app");
+			} else if (this.properties.selectedSheetOrChart === "chart") {
+				embedTag.setAttribute("ui", "analytics/chart");
+			} else {
+				throw new Error("Invalid UI type.");
+			}
+
 			embedTag.setAttribute("app-id", `${this.properties.appID}`);
-			embedTag.setAttribute("object-id", `${this.properties.objectID}`);
+			if (this.properties.selectedSheetOrChart === "sheet") {
+				embedTag.setAttribute("sheet-id", `${this.properties.sheetChartID}`);
+			} else if (this.properties.selectedSheetOrChart === "chart") {
+				embedTag.setAttribute("object-id", `${this.properties.sheetChartID}`);
+			} else {
+				throw new Error("Invalid UI type.");
+			}
 			embedDiv.appendChild(embedTag);
 
 			sectionTag.appendChild(scriptTag);
@@ -285,8 +330,26 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 								PropertyPaneTextField("appID", {
 									label: strings.appIDFieldLabel,
 								}),
-								PropertyPaneTextField("objectID", {
-									label: strings.objectIDFieldLabel,
+								PropertyPaneDropdown("selectedSheetOrChart", {
+									label: strings.sheetOrChartFieldLabel,
+									options: [
+										{ key: "sheet", text: "Sheet" },
+										{ key: "chart", text: "Chart" },
+									],
+									selectedKey: this.properties.selectedSheetOrChart,
+								}),
+								PropertyPaneTextField("sheetChartID", {
+									label: strings.sheetChartIDFieldLabel,
+								}),
+								PropertyPaneDropdown("selectedChartSize", {
+									label: strings.chartSizeFieldLabel,
+									options: [
+										{ key: "small", text: "Small" },
+										{ key: "medium", text: "Medium" },
+										{ key: "large", text: "Large" },
+										{ key: "xlarge", text: "XLarge" },
+									],
+									selectedKey: this.properties.selectedChartSize,
 								}),
 							],
 						},
