@@ -47,20 +47,27 @@
 	width: 100%;
 	height: 100%;
 }
+
 .qlikChartSmall {
 	width: 100%;
-	height: 200px;
+	height: 300px;
 }
 
 .qlikChartMedium {
 	width: 100%;
-	height: 400px;
+	height: 500px;
 }
 
 .qlikChartLarge {
 	width: 100%;
-	height: 600px;
+	height: 900px;
 }
+
+.qlikChartXLarge {
+	width: 100%;
+	height: 1200px;
+}
+
 .chartError {
 	color: red;
 	font-style: italic;
