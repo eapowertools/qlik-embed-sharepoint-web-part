@@ -6,6 +6,7 @@ define([], function () {
 		tenantFieldLabel: "Tenant name.region (example: tenantName.us)",
 		clientIDFieldLabel: "Client ID",
 		appIDFieldLabel: "App ID",
+		sheetOrChartFieldLabel: "Sheet or Chart",
 		sheetChartIDFieldLabel: "Sheet/Chart ID",
 		chartSizeFieldLabel: "Chart Size",
 		AppLocalEnvironmentSharePoint:
