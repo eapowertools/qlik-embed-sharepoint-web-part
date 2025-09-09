@@ -1,6 +1,6 @@
 define([], function () {
 	return {
-		PropertyPaneDescription: "Description",
+		PropertyPaneDescription: "Set your configuration below to embed Qlik into SharePoint.",
 		TenantConfigGroupName: "Tenant Configuration",
 		ObjectConfigGroupName: "Chart Configuration",
 		tenantFieldLabel: "Tenant name.region (example: tenantName.us)",

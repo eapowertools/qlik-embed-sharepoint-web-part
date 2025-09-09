@@ -19,7 +19,7 @@
 		{
 			"groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Advanced
 			"group": { "default": "Advanced" },
-			"title": { "default": "Embed" },
+			"title": { "default": "Embed Qlik" },
 			"description": {
 				"default": "This allows you to embed sheets or charts into your SharePoint page."
 			},
