@@ -1,28 +1,32 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
-  "id": "484e85c9-9d70-4cb2-9ae4-87c31a51abda",
-  "alias": "QlikEmbedWebPart",
-  "componentType": "WebPart",
+	"$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+	"id": "484e85c9-9d70-4cb2-9ae4-87c31a51abda",
+	"alias": "QlikEmbedWebPart",
+	"componentType": "WebPart",
 
-  // The "*" signifies that the version should be taken from the package.json
-  "version": "*",
-  "manifestVersion": 2,
+	// The "*" signifies that the version should be taken from the package.json
+	"version": "*",
+	"manifestVersion": 2,
 
-  // If true, the component can only be installed on sites where Custom Script is allowed.
-  // Components that allow authors to embed arbitrary script code should set this to true.
-  // https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
-  "requiresCustomScript": false,
-  "supportedHosts": ["SharePointWebPart", "TeamsPersonalApp", "TeamsTab", "SharePointFullPage"],
-  "supportsThemeVariants": true,
+	// If true, the component can only be installed on sites where Custom Script is allowed.
+	// Components that allow authors to embed arbitrary script code should set this to true.
+	// https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
+	"requiresCustomScript": false,
+	"supportedHosts": ["SharePointWebPart", "TeamsPersonalApp", "TeamsTab", "SharePointFullPage"],
+	"supportsThemeVariants": true,
 
-  "preconfiguredEntries": [{
-    "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Advanced
-    "group": { "default": "Advanced" },
-    "title": { "default": "qlik-embed" },
-    "description": { "default": "qlik-embed description" },
-    "officeFabricIconFontName": "Page",
-    "properties": {
-      "description": "qlik-embed"
-    }
-  }]
+	"preconfiguredEntries": [
+		{
+			"groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Advanced
+			"group": { "default": "Advanced" },
+			"title": { "default": "Embed" },
+			"description": {
+				"default": "This allows you to embed sheets or charts into your SharePoint page."
+			},
+			"iconImageUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMEAAACeCAYAAACLmm6+AAAAAXNSR0IB2cksfwAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAZiS0dEAJYAVAAyBGe+IwAAAAlwSFlzAAAuIwAALiMBeKU/dgAADPNJREFUeF7t3X+wHWV9x/H3nhCI+UFGbS0lClaMtMIUf1CHBEoguAEVEfRhgQWFUkgWRlo6VXG0ddqpOiMwY22tbgLlNxtZtqMdwRJWiBETsR1Da2tFCkjAqEgzhfwyv7zbP3av3Hw9e+9NQvbsnnxeM/zB57sZTpjzPfvs7vM8CyIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiJDybNB102J/am/hKOBQ6qoAJ6f4fV+tGXJimLMoSJA15sg9l8HnAa8DXgT8EZg+m7H7O5nwGPAd4HVHqwqovx/zTFygOleE8T+XOBi4Dzg9aa6N1YBd3vwpSLKN9ji/uSC8NPABTYHPpalyXIb9uOC8ALgcuA1wHrgxixN7tj9qP5cEAbAZ2wOLM/S5GM2HFYH2aC1Yt8HPgostKV9tABYUMD1xH4CXEeUP2oP2k9eCbzWhsAsG/TjgvBa4MNjotcDC1wQvjVLkz8bk9eZRf///m/YYJj1bNA6sT+f2F8D3M9L3wBjTQMuBX5A7N9G7M+xB7SJC8Lj2L0BxrraBeHxNpT+WtsEXuzPJvZvBlYD82x9P3s/8ENi/0Ozlp7e1iHjO2xgvNsG0l87myD2Ty3gv4BLbGkP7AS2UN4d2hszgOs2FSOriP0jbLEFZtvAmNSQStp4TRD7HwKuZfIX7c8BK4GHgO968HgR5c+ZYyD2jwKOAo4HTqK8q3Twbsf094fAWmL/fUT5KlscoNU2ML5pA+mvNU1w6NLTvY3FSAwstrU+tgMpcBtR/vWxhdqf/Sh/AniC8toCL/ZnFuWQYTFwypgj+3klcD+xHxHlN9viIGRpco8LwlWUF/bWt7I0+YoNpb9WDIcOiRf1NhYjNzNxA2wDPgccSZR/wDbAniiifDNRvpwoPxV4C3CPPcY4GLiJ2J/oMzbpXcDtwEj17wVwZ5XLJLXiTLCdYinlvf/x3AdcRZQ/bgv7LMofAd5N7J8GxIz//GEpsb+DKL/FFpqWpckW4AMuCK+i/MxPZGnyvDlMJjDwJjjhE2d/4mG2XGbzMbYCHybKv2ALL7kof8CL/eOK8mwz3mdaSuw/SZS3YtydpckLlE/BZS8MdDjkgvDMVz86/a9Pembm6OncWg8sbKQBKkWUbyXKLweWUN5h6udgICP2X20L0j0DawIXhIcDtwEc9j8v683/8Qx7TbsOOJEo/47JmxHly4CzgF/YUuU3Kcfj0nEDawLKsffLR//l8Meme/PW/6oRngYWEOXrRusDEeX3AecAv7SlyinE/p/YULplIE3ggvBs+jzRnPPD6d68n8zYApw18AYYFeUrgA/aeIxPebH/KhtKdzTeBOeed+EU+s9cBGDOo9MXE+X/YfOBivKY+qHPzAI+ZUPpjsaboCiKi4E32LySZmmS2LANPLgCeMrmlUuJ/d+xoXRD400AXGODyguMP+wYqCLKt1D/+XrUz+iUlmv0OYELwkXUnwU+maXJr8/5aZMov5fY/wb9p1m834v9a4oo32QL+4sLwquBP7I58DdZmmQ23AP2Tt0ecUE4k3L4+DpbG+MjWZqssOEgNNoEwB/boLIBaOxZwD76C+BbNqS8NjgXuMkW9qPfBn7fhsArbNAUF4RHAPcCx9paZScQtaUBoMHhkAvCadTPaVmWpclWG7ZSlK8G/s3GFWeDA4kLwjdT/kDUNcBW4IwsTZr8oZhQY01AOXV5hg0rN9qg5epmkr7di/26v+NQc0G4kHI6+2tsrfIs8PYsTR60hUFrsglOsUFlbZYmT9qwzTzI6D9unlqU6w8OKC4ILwNWUP8jtw44IUuTb9tCGzTZBPNtULnXBm1XLdqpm85xgg2GmSt3zLiB+uvLfwXmZWnylC20Rd0H3x/eaoNKv4vMLniI/l/442wwjFwQHkI59eUSUxprJXBm26/3GmkCF4RH8uKOcNZaG3TE92xQGe+24FBwQTgL+Cr9V7WNuhVYnKXJDltom0aagHLGZT+bsjTp6g5wP7BB5RgbDJPqFugK4HdtbYzPZWlytQ3bqqlrgqNsUHnMBh2y3gaVKdOWLmrq/2ujXLmX0RrGb4APdqkBoLkmONQGnRflP7PRqO1FMdF2KJ1TPe1fBdRtSrYNuChLk3+whbZrqgnqtk+pW7nVacWQNb0LwiXA16jf7HgL5UOwO22hC5pqgn731AGm2mAYeLDRZl3lyv1OY2CKrVV+DJycpUmb9mTaI01dGA/fDgixf7iNRk3zes/XrcnsimqayzLKLSnrPAkszNKkHQug9lJTTfAjG1SOtkGH1DXBrl90/2UgsynvAJ1sC2OsAd7T4bt7v9LUcOjnNqjMdEFYd/u07d5og8r3bdBB5zF+A+SAPwwNAA01QZYmT1O/a0Pdk+S26zeFGcohwjC70YN3tP0p8J5oajgE5eZQJ9kQOJFyd7muqXta+u82GCKfydLkozbsukbOBJU1NqicaYO2q3aXqHsJRt3Euq67cxgbAJptgm/YoPImF4RzbdhmBQQ2q+zwygdKw+hCF4SX23AYNNkEDwKbbVgZb9/PNqpbJnp/EeXbbDhEllVrB4ZKY02Qpcl2ypmH/VzugrBuQUa7xP7JlK+L7Se1QUc9ZYMxlrkgrPsR6KTGmqDyjzaovJz67Uza5pM2qGz04J9s2FE55YbE/XjADS4IL7GFrmq0CbI0eYD6Kcgfd0F4mA1bJfbPoX755C1FlA/NbcMsTZYBkc0rHnCTC8KLbKGLGm2CyrU2qMwCWjsD0Yv9WcDf27yyA7jehl2XpclSoO59yB5wqwvC822haxpvAs/zbqX+bPBeF4QX27ANinJHjLppxDcQ5c/YcBhkafK3wKdtXukBt7sgfJ8tdEnjTXD3XXcWwEdsPsYXXBD+gQ0HKvb/lPrboi948Fc2HCZZmnwc+LzNKwcBy10QnmMLXdF4E0D55kXgyzavTAe+7Mp1yYMX++cCn7XxGNcUUT4Uc2jGk6XJVZSzSvuZStkInXvwCQNqgsoVlO8g7mcOsMoF4WttoVFlA9xB/aKgFUT5UhsOqyxNllBur9LPIcDdLghPt4W2G1gTZGnyLOPPVT8SeNgF4Ym20IjYvwq4i/oXfq+n/2a4Q63X6y2h/l0N04CvuCA8zRbabGBNAJCVm7LWbdUO8FvAgy4I/9wW9hcXhDPPufCC5Udvnvp31J8BAO4gyn9qw2GXfumOAriU+gef04CvuiA81RbaaqBNAJClybXAeEOKg4HrXRCudEE43i4H+8wF4VnA96fs9M4/Zu1sjt487urPa4j9oZxLM5EsTXZR3ihYaWuVlwH3uCCsm2nbKgNvAoAsTSLqx5qjTgH+0wXhF10Q1m36uldcEM53QfgA8M/AEQC9XR7HPDKbN2wZtxGWEftDN5dmMrI02UY5A/ghW6tMB77mgnC8xTmt0IomAMjSZDHwRZsbB1E+xXzKBeHdLgjf6YJwr9ZEuCB8hQvCy1wQPgysBhbaY3o7PY5dO5u5EzfCpTY8EGTlwpozqN9KczrwL21vhL36Au0vWZpc6YLwvylvSY732XqAq/7Z6ILwQcov8lpgXa/Xe7IauwJQNcrvUW4C9hbKqQ8nM4kfgd5Oj2Mfmf2TZ+ZveG5br+i3z6gH3EjsjxDlt9jisMvSZKsLwncCXwfeZuu82AhnZGlSd9YYqAm/BE3L0uTzlKu2JruDwaHA2cB1wAPA4yMjIyMuCAsXhCMuCAvK/Y2+R/ls4i8ph1aT/bvnU3Z4x2/vFadSro7rxwNuIvZb+bR7f8vSZBPl0KhuJsB04D4XhHXzrgZqsl+ERmVpsobybScTDY8mMt7dnYlsAq7M0mRRliY/LaL8/zw4Hah7vexoI1xoCweCrHzfnE/9ziKtbYRWNgFAliabszS5knL48k1b3492UW42dVSWJrs1YRHlGzxYRP2O1D3gVmK/85PK9kaWJuspz7J1Z/HRoVG/teYD09omGJWlySNZmiygHMPfY+svoc2Us1jnZmlyRfXL9muKKP85ZSPUnfqnALcT+wfk+8uycmeRBcDTtlaZQXlGGMxD0D7Gu/hsleqi6iFX3h69mPJNkXXbnkzWLsrriAy4qxrbTizKnyX2T6N8k2Xd9oQLvNhfWUT5BlsYo+4MV9dg1nfoP59nsn/+Ufr/+X26gM3SZJ0r32E23kTJ97ogXJulSd1WPI3ZlzHzwLkgnEP5qzMPeDMwF3jVbge9qACeAB6nvIv0bWDVpL/4MrQ63QT9BOdf5I2MjBxGOeXCo/y1X5elydBskisiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiJ1/h9fbmCcXs4D4wAAAABJRU5ErkJggg==",
+			"properties": {
+				"description": "qlik-embed"
+			}
+		}
+	]
 }
