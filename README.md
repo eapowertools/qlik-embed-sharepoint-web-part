@@ -2,7 +2,7 @@
 
 ## Summary
 
-This is a short summary on functionality and used technologies.
+A short summary on functionality and used technologies.
 
 [picture of the solution in action, if possible]
 
