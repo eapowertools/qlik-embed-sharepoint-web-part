@@ -5,9 +5,16 @@ declare interface IQlikEmbedWebPartStrings {
 	tenantFieldLabel: string;
 	clientIDFieldLabel: string;
 	appIDFieldLabel: string;
-	sheetOrChartFieldLabel: string;
-	sheetChartIDFieldLabel: string;
+	contentTypeFieldLabel: string;
+	sheetFieldLabel: string;
+	optionalSheetFieldLabel: string;
+	chartFieldLabel: string;
+	assistantFieldLabel: string;
+	assistantLegacyFieldLabel: string;
+	useClassicSheetUiFieldLabel: string;
+	useClassicChartUiFieldLabel: string;
 	chartSizeFieldLabel: string;
+	customChartHeightFieldLabel: string;
 	AppLocalEnvironmentSharePoint: string;
 	AppLocalEnvironmentTeams: string;
 	AppLocalEnvironmentOffice: string;
