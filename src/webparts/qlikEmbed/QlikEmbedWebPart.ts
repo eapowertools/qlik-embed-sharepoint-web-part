@@ -21,7 +21,6 @@ import * as strings from "QlikEmbedWebPartStrings";
 
 type ContentType = "app" | "sheet" | "chart" | "assistant";
 type ChartSize = "small" | "medium" | "large" | "xlarge" | "custom";
-type LegacyContentType = "sheet" | "chart";
 type DropdownOption = ISearchableDropdownOption;
 type PropertyPaneField =
 	| ReturnType<typeof PropertyPaneDropdown>
@@ -85,8 +84,6 @@ export interface IQlikEmbedWebPartProps {
 	appID: string;
 	selectedChartSize: ChartSize | string;
 	selectedContentType?: ContentType;
-	selectedSheetOrChart?: string;
-	sheetChartID?: string;
 	sheetId?: string;
 	chartId?: string;
 	assistantId?: string;
@@ -362,14 +359,6 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 	}
 
 	private _ensurePropertyDefaults(): void {
-		const legacyContentType = this.properties.selectedSheetOrChart as LegacyContentType | undefined;
-		if (
-			!this.properties.selectedContentType &&
-			(legacyContentType === "sheet" || legacyContentType === "chart")
-		) {
-			this.properties.selectedContentType = legacyContentType;
-		}
-
 		if (!VALID_CONTENT_TYPES.has(this.properties.selectedContentType as ContentType)) {
 			this.properties.selectedContentType = DEFAULT_CONTENT_TYPE;
 		}
@@ -388,20 +377,6 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 		if (typeof this.properties.assistantLegacy === "undefined") {
 			this.properties.assistantLegacy = false;
-		}
-
-		if (
-			typeof this.properties.sheetId === "undefined" &&
-			this.properties.selectedContentType === "sheet"
-		) {
-			this.properties.sheetId = this.properties.sheetChartID || "";
-		}
-
-		if (
-			typeof this.properties.chartId === "undefined" &&
-			this.properties.selectedContentType === "chart"
-		) {
-			this.properties.chartId = this.properties.sheetChartID || "";
 		}
 
 		if (!this.properties.customChartHeight) {
