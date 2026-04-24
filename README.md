@@ -1,73 +1,60 @@
 # qlik-embed-web-part
 
-## Summary
+SharePoint Framework web part for embedding Qlik content in Microsoft 365 pages.
 
-A short summary on functionality and used technologies.
+## What It Supports
 
-[picture of the solution in action, if possible]
+- Qlik apps
+- Qlik sheets
+- Qlik charts
+- Qlik assistants
+- Searchable property-pane selectors for apps, sheets, charts, and assistants
+- Fixed and custom embed heights
 
-## Used SharePoint Framework Version
+## Stack
 
-![version](https://img.shields.io/badge/version-1.21.1-green.svg)
-
-## Applies to
-
-- [SharePoint Framework](https://aka.ms/spfx)
-- [Microsoft 365 tenant](https://docs.microsoft.com/en-us/sharepoint/dev/spfx/set-up-your-developer-tenant)
-
-> Get your own free development tenant by subscribing to [Microsoft 365 developer program](http://aka.ms/o365devprogram)
+- SharePoint Framework 1.21.1
+- TypeScript 5.3
+- Qlik API SDK
+- Custom SharePoint property-pane controls built with React 17
 
 ## Prerequisites
 
-> Any special pre-requisites?
+- Node.js `22.14.x`
+- A Microsoft 365 tenant with SharePoint Framework development enabled
+- A Qlik Cloud tenant host in the format `tenant.region.qlikcloud.com`
+- A Qlik OAuth client ID registered with the SharePoint page URL you will use as the redirect URI
 
-## Solution
+## Local Development
 
-| Solution    | Author(s)                                               |
-| ----------- | ------------------------------------------------------- |
-| folder name | Author details (name, company, twitter alias with link) |
+```bash
+npm install
+npm run build
+gulp serve
+```
 
-## Version history
+## Configuration
 
-| Version | Date             | Comments        |
-| ------- | ---------------- | --------------- |
-| 1.1     | March 10, 2021   | Update comment  |
-| 1.0     | January 29, 2021 | Initial release |
+In the web part property pane, provide:
 
-## Disclaimer
+1. Tenant host
+2. Client ID
+3. Embed type
+4. App, sheet, chart, or assistant selection
+5. Embed height
 
-**THIS CODE IS PROVIDED _AS IS_ WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.**
+When tenant and client settings are valid, the web part loads available Qlik resources directly into the property pane so editors can choose from live data instead of pasting IDs manually.
 
----
+## Notes
 
-## Minimal Path to Awesome
+- App, sheet, and chart selections are loaded dynamically from the configured tenant.
+- Assistant embeds support both legacy and agentic assistant modes.
+- Sheet embeds can use classic or analytics UI.
+- Chart embeds can use classic or analytics UI.
 
-- Clone this repository
-- Ensure that you are at the solution folder
-- in the command-line run:
-  - **npm install**
-  - **gulp serve**
+## Validation
 
-> Include any additional steps as needed.
-
-## Features
-
-Description of the extension that expands upon high-level summary above.
-
-This extension illustrates the following concepts:
-
-- topic 1
-- topic 2
-- topic 3
-
-> Notice that better pictures and documentation will increase the sample usage and the value you are providing for others. Thanks for your submissions advance.
-
-> Share your web part with others through Microsoft 365 Patterns and Practices program to get visibility and exposure. More details on the community, open-source projects and other activities from http://aka.ms/m365pnp.
-
-## References
-
-- [Getting started with SharePoint Framework](https://docs.microsoft.com/en-us/sharepoint/dev/spfx/set-up-your-developer-tenant)
-- [Building for Microsoft teams](https://docs.microsoft.com/en-us/sharepoint/dev/spfx/build-for-teams-overview)
-- [Use Microsoft Graph in your solution](https://docs.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/get-started/using-microsoft-graph-apis)
-- [Publish SharePoint Framework applications to the Marketplace](https://docs.microsoft.com/en-us/sharepoint/dev/spfx/publish-to-marketplace-overview)
-- [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp) - Guidance, tooling, samples and open-source controls for your Microsoft 365 development
+```bash
+npm run build
+npm test
+```
