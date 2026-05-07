@@ -139,15 +139,26 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		this._ensurePropertyDefaults();
 		this._ensureRedirectUri();
 
+		var emptyConfig = false;
+
+		if (!this.properties.tenant && !this.properties.clientID) {
+			emptyConfig = true;
+		}
+
 		const validationErrors: string[] = this._getValidationErrors();
-		const selectionGuidance = validationErrors.length === 0 ? this._getSelectionGuidanceMessage() : undefined;
+		const selectionGuidance =
+			validationErrors.length === 0 ? this._getSelectionGuidanceMessage() : undefined;
 		const sectionTag = this._createSection();
 
 		if (validationErrors.length === 0 && !selectionGuidance) {
 			sectionTag.appendChild(this._createEmbedPreview());
 		} else {
 			sectionTag.appendChild(
-				this._createWelcomeState(selectionGuidance || DEFAULT_WELCOME_MESSAGE, validationErrors)
+				this._createWelcomeState(
+					selectionGuidance || DEFAULT_WELCOME_MESSAGE,
+					emptyConfig,
+					validationErrors,
+				),
 			);
 		}
 
@@ -171,7 +182,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 	protected onPropertyPaneFieldChanged(
 		propertyPath: string,
 		oldValue: string | boolean | undefined,
-		newValue: string | boolean | undefined
+		newValue: string | boolean | undefined,
 	): void {
 		super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
 
@@ -310,7 +321,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 	private _setElementAttributes(
 		element: HTMLElement,
-		attributes: Array<readonly [string, string | undefined]>
+		attributes: Array<readonly [string, string | undefined]>,
 	): void {
 		for (let index = 0; index < attributes.length; index++) {
 			const [attribute, value] = attributes[index];
@@ -323,7 +334,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 	private _createTextBlock(
 		tagName: "p" | "span",
 		text: string,
-		className?: string
+		className?: string,
 	): HTMLParagraphElement | HTMLSpanElement {
 		const element = document.createElement(tagName);
 		element.textContent = text;
@@ -334,7 +345,11 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		return element;
 	}
 
-	private _createWelcomeState(message: string, validationErrors: string[]): HTMLDivElement {
+	private _createWelcomeState(
+		message: string,
+		isEmptyConfig: boolean,
+		validationErrors: string[],
+	): HTMLDivElement {
 		const sectionHeaderDiv: HTMLDivElement = document.createElement("div");
 		sectionHeaderDiv.classList.add(styles.welcome);
 		const logoImage = document.createElement("img");
@@ -344,14 +359,21 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 		sectionHeaderDiv.appendChild(logoImage);
 
-		if (validationErrors.length > 0) {
-			sectionHeaderDiv.appendChild(this._createTextBlock("p", "Error configuring embed:"));
-			for (let index = 0; index < validationErrors.length; index++) {
-				sectionHeaderDiv.appendChild(
-					this._createTextBlock("p", validationErrors[index], styles.chartError)
-				);
-			}
+		if (isEmptyConfig) {
+			sectionHeaderDiv.appendChild(
+				this._createTextBlock("p", "Please edit the web part settings to embed Qlik assets."),
+			);
 			return sectionHeaderDiv;
+		} else {
+			if (validationErrors.length > 0) {
+				sectionHeaderDiv.appendChild(this._createTextBlock("p", "Error configuring embed:"));
+				for (let index = 0; index < validationErrors.length; index++) {
+					sectionHeaderDiv.appendChild(
+						this._createTextBlock("p", validationErrors[index], styles.chartError),
+					);
+				}
+				return sectionHeaderDiv;
+			}
 		}
 
 		sectionHeaderDiv.appendChild(this._createTextBlock("p", message));
@@ -445,7 +467,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				getItems({
 					resourceType: "app",
 					limit: 100,
-				})
+				}),
 			);
 
 			if (requestId !== this._appsRequestId) {
@@ -515,14 +537,17 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 					text: this._formatOptionLabel(
 						this._getSheetTitle(sheet),
 						"Unnamed Sheet",
-						sheet.qInfo?.qId || ""
+						sheet.qInfo?.qId || "",
 					),
 				}))
 				.filter((sheet) => sheet.key !== "")
 				.sort(this._sortDropdownOptions);
 			this._sheetsCacheKey = cacheKey;
 
-			if (this.properties.sheetId && !this._hasOption(this._sheetOptions, this.properties.sheetId)) {
+			if (
+				this.properties.sheetId &&
+				!this._hasOption(this._sheetOptions, this.properties.sheetId)
+			) {
 				this.properties.sheetId = "";
 				this.properties.chartId = "";
 				this._clearChartData();
@@ -579,7 +604,10 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			this._chartOptions = chartOptions.sort(this._sortDropdownOptions);
 			this._chartsCacheKey = cacheKey;
 
-			if (this.properties.chartId && !this._hasOption(this._chartOptions, this.properties.chartId)) {
+			if (
+				this.properties.chartId &&
+				!this._hasOption(this._chartOptions, this.properties.chartId)
+			) {
 				this.properties.chartId = "";
 			}
 		} catch (error) {
@@ -617,7 +645,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			const assistants = await this._collectPagedData<Assistant>(async () =>
 				getAssistants({
 					limit: 100,
-				})
+				}),
 			);
 
 			if (requestId !== this._assistantsRequestId) {
@@ -630,7 +658,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 					text: this._formatOptionLabel(
 						assistant.title || assistant.name,
 						"Untitled Assistant",
-						assistant.id
+						assistant.id,
 					),
 				}))
 				.sort(this._sortDropdownOptions);
@@ -670,15 +698,15 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			.map((child) => {
 				const qProperty = child.qProperty as
 					| {
-						title?: unknown;
-						qMetaDef?: {
 							title?: unknown;
-						};
-						qInfo?: {
-							qId?: string;
-							qType?: string;
-						};
-					}
+							qMetaDef?: {
+								title?: unknown;
+							};
+							qInfo?: {
+								qId?: string;
+								qType?: string;
+							};
+					  }
 					| undefined;
 				const chartId = qProperty?.qInfo?.qId || "";
 				const chartType = qProperty?.qInfo?.qType || "object";
@@ -865,7 +893,10 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			return false;
 		}
 
-		if (this.properties.assistantId && this._hasOption(this._assistantOptions, this.properties.assistantId)) {
+		if (
+			this.properties.assistantId &&
+			this._hasOption(this._assistantOptions, this.properties.assistantId)
+		) {
 			return false;
 		}
 
@@ -928,9 +959,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		return APP_CONTENT_TYPES.has(contentType);
 	}
 
-	private async _collectPagedData<T>(
-		loadFirstPage: () => Promise<PagedResponse<T>>
-	): Promise<T[]> {
+	private async _collectPagedData<T>(loadFirstPage: () => Promise<PagedResponse<T>>): Promise<T[]> {
 		let response = await loadFirstPage();
 		const items = response.data?.data ? response.data.data.slice() : [];
 
@@ -947,7 +976,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 	private _formatOptionLabel(
 		label: string | undefined,
 		fallbackLabel: string,
-		detail: string
+		detail: string,
 	): string {
 		const baseLabel = label?.trim() || fallbackLabel;
 		return detail ? `${baseLabel} (${detail})` : baseLabel;
@@ -1006,7 +1035,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		return Promise.resolve(
 			this.context.isServedFromLocalhost
 				? strings.AppLocalEnvironmentSharePoint
-				: strings.AppSharePointEnvironment
+				: strings.AppSharePointEnvironment,
 		);
 	}
 
@@ -1038,7 +1067,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 	private _getObjectConfigurationFields(
 		selectedContentType: ContentType,
-		canLoadTenantData: boolean
+		canLoadTenantData: boolean,
 	): PropertyPaneField[] {
 		const objectFields: PropertyPaneField[] = [
 			PropertyPaneDropdown("selectedContentType", {
@@ -1051,7 +1080,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		if (this._usesAppSelections(selectedContentType)) {
 			objectFields.push(
 				this._createAppField(canLoadTenantData),
-				this._createSheetField(selectedContentType)
+				this._createSheetField(selectedContentType),
 			);
 		}
 
@@ -1060,7 +1089,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				PropertyPaneToggle("useClassicSheetUi", {
 					label: strings.useClassicSheetUiFieldLabel,
 					checked: !!this.properties.useClassicSheetUi,
-				})
+				}),
 			);
 		}
 
@@ -1070,7 +1099,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				PropertyPaneToggle("useClassicChartUi", {
 					label: strings.useClassicChartUiFieldLabel,
 					checked: !!this.properties.useClassicChartUi,
-				})
+				}),
 			);
 		}
 
@@ -1080,7 +1109,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 				PropertyPaneToggle("assistantLegacy", {
 					label: strings.assistantLegacyFieldLabel,
 					checked: !!this.properties.assistantLegacy,
-				})
+				}),
 			);
 		}
 
@@ -1089,7 +1118,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 	}
 
 	private _createAppField(
-		canLoadTenantData: boolean
+		canLoadTenantData: boolean,
 	): ReturnType<typeof PropertyPaneSearchableDropdown> {
 		return PropertyPaneSearchableDropdown({
 			targetProperty: "appID",
@@ -1097,7 +1126,10 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			options: this._appOptions,
 			selectedKey: this.properties.appID || undefined,
 			disabled:
-				!canLoadTenantData || this._isLoadingApps || !!this._appsLoadError || this._appOptions.length === 0,
+				!canLoadTenantData ||
+				this._isLoadingApps ||
+				!!this._appsLoadError ||
+				this._appOptions.length === 0,
 			placeholder: !canLoadTenantData
 				? "Enter a valid tenant host and client ID first."
 				: this._isLoadingApps
@@ -1110,7 +1142,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 	}
 
 	private _createSheetField(
-		selectedContentType: ContentType
+		selectedContentType: ContentType,
 	): ReturnType<typeof PropertyPaneSearchableDropdown> {
 		const isAppContent = selectedContentType === "app";
 		return PropertyPaneSearchableDropdown({
@@ -1159,7 +1191,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 	}
 
 	private _createAssistantField(
-		canLoadTenantData: boolean
+		canLoadTenantData: boolean,
 	): ReturnType<typeof PropertyPaneSearchableDropdown> {
 		return PropertyPaneSearchableDropdown({
 			targetProperty: "assistantId",
@@ -1195,7 +1227,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 			chartSizeFields.push(
 				PropertyPaneTextField("customChartHeight", {
 					label: strings.customChartHeightFieldLabel,
-				})
+				}),
 			);
 		}
 
@@ -1206,8 +1238,14 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		this._ensurePropertyDefaults();
 
 		const selectedContentType = this.properties.selectedContentType as ContentType;
-		const canLoadTenantData =
-			!this._validateTenant(this.properties.tenant) && !this._validateClientId(this.properties.clientID);
+		var canLoadTenantData = false;
+		if (this.properties.tenant === "" && this.properties.clientID === "") {
+			canLoadTenantData = false;
+		} else {
+			canLoadTenantData =
+				!this._validateTenant(this.properties.tenant) &&
+				!this._validateClientId(this.properties.clientID);
+		}
 
 		return {
 			pages: [
@@ -1231,7 +1269,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 							groupName: strings.ObjectConfigGroupName,
 							groupFields: this._getObjectConfigurationFields(
 								selectedContentType,
-								canLoadTenantData
+								canLoadTenantData,
 							),
 						},
 					],
