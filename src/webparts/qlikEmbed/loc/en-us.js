@@ -3,7 +3,7 @@ define([], function () {
 		PropertyPaneDescription: "Set your configuration below to embed Qlik into SharePoint.",
 		TenantConfigGroupName: "Tenant Configuration",
 		ObjectConfigGroupName: "Embed Configuration",
-		tenantFieldLabel: "Tenant host (example: tenantName.eu.qlikcloud.com)",
+		tenantFieldLabel: "Tenant host (example: tenantName.ca.qlikcloud.com)",
 		clientIDFieldLabel: "Client ID",
 		appIDFieldLabel: "App",
 		contentTypeFieldLabel: "Embed Type",
