@@ -139,7 +139,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		this._ensurePropertyDefaults();
 		this._ensureRedirectUri();
 
-		var emptyConfig = false;
+		let emptyConfig = false;
 
 		if (!this.properties.tenant && !this.properties.clientID) {
 			emptyConfig = true;
@@ -706,7 +706,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 								qId?: string;
 								qType?: string;
 							};
-					  }
+					  } // eslint-disable-line no-mixed-spaces-and-tabs
 					| undefined;
 				const chartId = qProperty?.qInfo?.qId || "";
 				const chartType = qProperty?.qInfo?.qType || "object";
@@ -1238,14 +1238,9 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		this._ensurePropertyDefaults();
 
 		const selectedContentType = this.properties.selectedContentType as ContentType;
-		var canLoadTenantData = false;
-		if (this.properties.tenant === "" && this.properties.clientID === "") {
-			canLoadTenantData = false;
-		} else {
-			canLoadTenantData =
-				!this._validateTenant(this.properties.tenant) &&
-				!this._validateClientId(this.properties.clientID);
-		}
+		const canLoadTenantData =
+			!this._validateTenant(this.properties.tenant) &&
+			!this._validateClientId(this.properties.clientID);
 
 		return {
 			pages: [
