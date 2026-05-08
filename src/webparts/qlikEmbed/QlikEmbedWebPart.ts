@@ -19,6 +19,8 @@ import {
 } from "./propertyPane/PropertyPaneSearchableDropdown";
 import * as strings from "QlikEmbedWebPartStrings";
 
+import "@qlik/embed-web-components";
+
 type ContentType = "app" | "sheet" | "chart" | "assistant";
 type ChartSize = "small" | "medium" | "large" | "xlarge" | "custom";
 type DropdownOption = ISearchableDropdownOption;
@@ -75,8 +77,6 @@ const NO_SHEET_OPTION: DropdownOption = {
 	key: "",
 	text: "No sheet (open app landing page)",
 };
-const QLIK_EMBED_SCRIPT_SOURCE =
-	"https://cdn.jsdelivr.net/npm/@qlik/embed-web-components@1/dist/index.min.js";
 
 export interface IQlikEmbedWebPartProps {
 	tenant: string;
@@ -265,7 +265,6 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 		const scriptTag = document.createElement("script");
 		scriptTag.setAttribute("crossorigin", "anonymous");
 		scriptTag.setAttribute("type", "application/javascript");
-		scriptTag.setAttribute("src", QLIK_EMBED_SCRIPT_SOURCE);
 		scriptTag.setAttribute("data-host", this.properties.tenant.trim());
 		scriptTag.setAttribute("data-client-id", this.properties.clientID.trim());
 		scriptTag.setAttribute("data-redirect-uri", this._redirectURI);
@@ -408,8 +407,7 @@ export default class QlikEmbedWebPart extends BaseClientSideWebPart<IQlikEmbedWe
 
 	private _ensureRedirectUri(): void {
 		if (this._redirectURI === "") {
-			this._redirectURI =
-				this.context.pageContext.site.absoluteUrl + this.context.pageContext.site.serverRequestPath;
+			this._redirectURI = window.location.origin + this.context.pageContext.site.serverRequestPath;
 		}
 	}
 
